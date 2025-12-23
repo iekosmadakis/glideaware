@@ -1,6 +1,6 @@
 # SNCodePolish
 
-A client-side web application for formatting and analyzing ServiceNow JavaScript code and JSON. All processing happens in the browser - your code never leaves your machine.
+A client-side web application for formatting and polishing ServiceNow JavaScript code and JSON. All processing happens in the browser - your code never leaves your machine.
 
 ## Features
 
