@@ -1,0 +1,275 @@
+# SNCodePolish
+
+A client-side web application for formatting and analyzing ServiceNow JavaScript code and JSON. All processing happens in the browser - your code never leaves your machine.
+
+## Features
+
+### 🔀 Dual Mode Support
+Switch between **JavaScript** (ServiceNow) and **JSON** modes with one click. Each mode provides specialized formatting, fixes, and validation.
+
+### ✨ Code Formatting
+Formats code using Prettier with ServiceNow-friendly settings (JavaScript) or clean JSON formatting.
+
+### 🔧 Generic JavaScript Auto-Fixes
+| Fix | Description |
+|-----|-------------|
+| **Line endings** | Normalizes Windows `\r\n` to Unix `\n` |
+| **Trailing whitespace** | Removes spaces/tabs at end of lines |
+| **Multiple semicolons** | Fixes `;;` or `;;;` → `;` |
+| **Empty statements** | Removes standalone `;` on their own line |
+| **Keyword spacing** | `if(`, `for(`, `while(`, `switch(`, `catch(` → adds space |
+| **Excessive blank lines** | Reduces 4+ consecutive blank lines to 2 |
+| **Boolean simplification** | `== true` → removes comparison |
+
+### 🔧 ServiceNow Auto-Fixes
+
+#### Typo Corrections
+| Category | Examples |
+|----------|----------|
+| **GlideRecord methods** | `addQeury` → `addQuery`, `getValeu` → `getValue`, `udpate` → `update`, `isert` → `insert`, `delte` → `delete`, `getRefrence` → `getReference`, `setLimt` → `setLimit`, `deleteReocrd` → `deleteRecord`, `getUniqueVlaue` → `getUniqueValue` |
+| **GlideElement methods** | `getJournlaEntry` → `getJournalEntry`, `chnages` → `changes`, `getReferecneTable` → `getReferenceTable` |
+| **GlideDateTime methods** | `addSecnods` → `addSeconds`, `addDyas` → `addDays`, `getDayOfWek` → `getDayOfWeek`, `comparTo` → `compareTo` |
+| **GlideUser methods** | `hasRoel` → `hasRole`, `isMemberOF` → `isMemberOf`, `getEmial` → `getEmail`, `getFristName` → `getFirstName` |
+| **GlideSession methods** | `isLogedIn` → `isLoggedIn`, `getClientIp` → `getClientIP`, `isInteratcive` → `isInteractive` |
+| **Class names** | `GlideReocrd` → `GlideRecord`, `GlideDateTiem` → `GlideDateTime`, `GlideAggreaget` → `GlideAggregate`, `GlideAjxa` → `GlideAjax`, `GlideSysAttachement` → `GlideSysAttachment`, `ArrayUitl` → `ArrayUtil` |
+| **g_form methods** | `setMandaotry` → `setMandatory`, `setVisble` → `setVisible`, `setReadOnyl` → `setReadOnly`, `addOptin` → `addOption`, `showFieldMesg` → `showFieldMsg` |
+| **g_user methods** | `hasRoel` → `hasRole`, `getUserNmae` → `getUserName`, `getFulName` → `getFullName` |
+| **GlideAjax methods** | `addParm` → `addParam`, `getXMLWiat` → `getXMLWait`, `getXmlWait` → `getXMLWait`, `getXMLAnwser` → `getXMLAnswer`, `getParamater` → `getParameter` |
+| **gs methods** | `gs.getPrefernce` → `gs.getPreference`, `gs.addInfoMessge` → `gs.addInfoMessage`, `gs.getProprety` → `gs.getProperty` |
+| **REST/SOAP methods** | `setRequestBdoy` → `setRequestBody`, `setHttpMehtod` → `setHttpMethod`, `getResponeBody` → `getResponseBody`, `RESTMessagV2` → `RESTMessageV2` |
+| **ArrayUtil methods** | `contians` → `contains`, `unqiue` → `unique`, `differnce` → `diff` |
+| **GlideSysAttachment** | `wirte` → `write`, `getContetnt` → `getContent`, `deleteAttachement` → `deleteAttachment` |
+| **Workflow methods** | `scratchapd` → `scratchpad` |
+| **Other classes** | `GlidePluginManger` → `GlidePluginManager`, `GlideTableHiearchy` → `GlideTableHierarchy` |
+
+#### Intelligent Fixes
+| Fix | Description |
+|-----|-------------|
+| **gs.now()** | Replaces with `new GlideDateTime().getDisplayValue()` |
+| **gs.nowDateTime()** | Replaces with `new GlideDateTime().getValue()` |
+| **getValue('sys_id')** | Optimizes to `getUniqueValue()` |
+| **gs.print()** | Replaces with `gs.info()` |
+| **String concat in addQuery** | `addQuery('field=' + val)` → `addQuery('field', val)` |
+| **Simple addEncodedQuery** | Simplifies single-condition encoded queries to `addQuery()` |
+| **String literal equality** | Converts `'string' == 'string'` to `===` (safe patterns only) |
+
+### ⚠️ Generic JavaScript Warnings
+| Warning | Description |
+|---------|-------------|
+| **TODO/FIXME comments** | Counts TODO, FIXME, XXX, HACK, BUG comments |
+| **Long lines** | Lines exceeding 150 characters |
+| **Empty catch blocks** | `catch(e) {}` - errors silently ignored |
+| **Empty code blocks** | Empty `if`, `for`, `while` bodies |
+| **Deeply nested code** | 6+ levels of nesting |
+| **Unreachable code** | Code after return statement |
+| **Long functions** | Functions averaging 50+ lines |
+| **Too many parameters** | Functions with 5+ parameters |
+| **Assignment in conditional** | `if (x = y)` - possible mistake |
+| **Nested ternary** | `a ? b ? c : d : e` |
+| **Hardcoded credentials** | Detects password, apiKey, secret, token patterns |
+
+### ⚠️ ServiceNow Warnings
+
+#### Database & Performance
+| Warning | Description |
+|---------|-------------|
+| **update() in while loop** | Each update is a separate DB call - consider batch operations |
+| **getRowCount() without setLimit()** | Performance issue on large tables |
+| **deleteRecord() in loop** | Suggest using `deleteMultiple()` for performance |
+| **getReference() in loop** | N+1 query problem - suggest join or caching |
+| **Missing setLimit(1)** | For existence checks, add `setLimit(1)` |
+| **query() without conditions** | Full table scan warning |
+| **updateMultiple/deleteMultiple without conditions** | Will affect ALL records |
+| **get() followed by query()** | `get()` already positions record, `query()` is redundant |
+| **next() with updateMultiple()** | `updateMultiple()` ignores per-row changes from iteration |
+
+#### Business Rules
+| Warning | Description |
+|---------|-------------|
+| **setWorkflow(false) not re-enabled** | Workflows will be permanently skipped |
+| **setAbortAction without return** | Business Rule may not stop properly |
+| **Direct field assignment** | `current.field = value` - suggest `setValue()` |
+| **current.update() in BR** | Risks recursion - use Before BR or setWorkflow(false) |
+| **current.insert() in BR** | Unusual pattern - verify intentional |
+
+#### Security
+| Warning | Description |
+|---------|-------------|
+| **Hardcoded sys_id** | Use system properties for portability |
+| **eval() or GlideEvaluator** | Security risk - avoid dynamic code execution |
+| **new Function()** | Security risk similar to eval() |
+| **GlideRecordSecure + privileged ops** | setWorkflow(false)/updateMultiple undermines security intent |
+
+#### Best Practices
+| Warning | Description |
+|---------|-------------|
+| **GlideAggregate without aggregate** | No aggregate function called |
+| **getXMLWait() usage** | Blocks UI thread - suggest async pattern |
+| **gs.sleep() usage** | Blocks thread - avoid in production |
+| **gs.getProperty() without default** | Consider adding fallback value |
+| **gs.include() legacy** | Use Script Includes with Class.create() pattern |
+| **addEncodedQuery with sys_id** | Prefer `addQuery('sys_id', value)` for clarity |
+| **g_form.getReference() no callback** | Synchronous call - use callback for async |
+| **GlideAjax without sysparm_name** | Processor method will not be invoked |
+| **DOM manipulation with g_form** | Prefer g_form APIs - DOM may break on upgrades |
+
+---
+
+## 📦 JSON Mode
+
+### 🔧 JSON Auto-Fixes
+| Fix | Description |
+|-----|-------------|
+| **Remove comments** | Strips single-line (`//`) and multi-line (`/* */`) comments |
+| **Remove trailing commas** | Fixes `[1, 2, 3,]` → `[1, 2, 3]` |
+| **Single to double quotes** | Converts `'value'` → `"value"` |
+| **Quote unquoted keys** | Fixes `{key: value}` → `{"key": value}` |
+| **Multiple commas** | Fixes `,,` → `,` |
+| **Normalize line endings** | Windows `\r\n` → Unix `\n` |
+| **Trailing whitespace** | Removes spaces/tabs at end of lines |
+| **Missing braces/brackets** | Adds missing `}` or `]` to complete structure |
+
+### 🚫 JSON Errors
+| Error | Description |
+|-------|-------------|
+| **Syntax errors** | Detailed location (line, column) of JSON parsing failures |
+| **Trailing commas** | Not valid in JSON spec |
+| **Single quotes** | JSON requires double quotes |
+| **Comments** | Not allowed in standard JSON |
+
+### ⚠️ JSON Warnings
+| Warning | Description |
+|---------|-------------|
+| **Duplicate keys** | Later value will override earlier |
+| **Deep nesting** | 10+ levels of nesting |
+| **Long strings** | Strings over 1000 characters |
+| **Many empty containers** | 5+ empty arrays/objects |
+| **Excessive nulls** | 10+ null values |
+| **Numeric keys** | Suggests using array instead |
+| **Large file** | Files over 1000 lines |
+| **Control characters** | Unescaped special characters |
+
+### ⚖️ JSON Diff
+Compare two JSON objects and visualize their differences:
+- **Side-by-side editors** for original and modified JSON
+- **Visual diff output** with color-coded changes
+- **Change statistics** showing additions, deletions, and modifications
+- **Swap button** to quickly reverse comparison direction
+- **Sample data** to demonstrate the feature
+
+---
+
+### ⌨️ Keyboard Shortcut
+- `Ctrl+Enter` / `Cmd+Enter` - Polish code/JSON
+
+### 💾 Export
+- Download polished output as `.js` or `.json` file
+
+### 🔒 Privacy
+- Works offline after initial load
+- No server required - code stays in browser
+- No data collection or tracking
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 22+
+- npm
+
+### Installation
+
+```bash
+npm install
+npm run dev
+```
+
+### Build
+
+```bash
+npm run build
+npm run preview
+```
+
+### Deploy
+
+After building, the `dist/` folder contains static files that can be deployed to any hosting service.
+
+## 📖 Usage
+
+1. Select mode: **JavaScript** or **JSON** using the toggle
+2. Paste your code/JSON in the left panel
+3. Click **Polish Code/JSON** or press `Ctrl+Enter`
+4. View formatted output in the right panel with highlighted changes
+5. Click the fixes/warnings badge to see details
+6. Click **Copy** to copy the polished output
+
+## Tech Stack
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 19.x | UI framework |
+| Vite | 7.x | Build tool |
+| Monaco Editor | 4.x | Code editor (VS Code engine) |
+| Prettier | 3.x | Code formatting |
+
+## Project Structure
+
+```
+src/
+├── App.jsx                    # Main React component
+├── index.css                  # Application styles
+├── main.jsx                   # React entry point
+└── utils/
+    ├── codePolish.js          # Main orchestrator (JS + JSON)
+    ├── fixes/
+    │   ├── genericFixes.js    # Generic JavaScript fixes
+    │   ├── servicenowFixes.js # ServiceNow-specific fixes
+    │   └── jsonFixes.js       # JSON-specific fixes
+    └── warnings/
+        ├── genericWarnings.js    # Generic JavaScript warnings
+        ├── servicenowWarnings.js # ServiceNow warnings & errors
+        └── jsonWarnings.js       # JSON warnings & errors
+```
+
+## Supported Script Types
+
+### JavaScript Mode
+- Business Rules (before, after, async)
+- Client Scripts (onLoad, onChange, onSubmit)
+- Script Includes
+- UI Actions
+- Scheduled Jobs
+- Scripted REST APIs
+- UI Policies
+- Portal widgets
+- Any JavaScript code
+
+### JSON Mode
+- Configuration files
+- API payloads
+- Import/export data
+- Any JSON content
+
+## 📄 License
+
+MIT License
+
+Copyright (c) 2026 Ioannis E. Kosmadakis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. 
