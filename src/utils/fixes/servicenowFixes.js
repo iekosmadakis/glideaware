@@ -156,6 +156,66 @@ const GLIDE_RECORD_TYPOS = [
   // getAttachments
   [/\.getAttachmnets\(/g, '.getAttachments('],
   [/\.getAttachemnts\(/g, '.getAttachments('],
+  // addActiveQuery
+  [/\.addActvieQuery\(/g, '.addActiveQuery('],
+  [/\.addAtciveQuery\(/g, '.addActiveQuery('],
+  [/\.addActiveQeury\(/g, '.addActiveQuery('],
+  [/\.addActiveQurey\(/g, '.addActiveQuery('],
+  // addJoinQuery
+  [/\.addJionQuery\(/g, '.addJoinQuery('],
+  [/\.addJoinQeury\(/g, '.addJoinQuery('],
+  [/\.addJionQeury\(/g, '.addJoinQuery('],
+  // applyTemplate
+  [/\.applyTemplete\(/g, '.applyTemplate('],
+  [/\.applyTemplat\(/g, '.applyTemplate('],
+  [/\.apllyTemplate\(/g, '.applyTemplate('],
+  // canCreate / canDelete
+  [/\.canCraete\(/g, '.canCreate('],
+  [/\.canCreaet\(/g, '.canCreate('],
+  [/\.canDelte\(/g, '.canDelete('],
+  [/\.canDeleet\(/g, '.canDelete('],
+  // isValidRecord
+  [/\.isValidReocrd\(/g, '.isValidRecord('],
+  [/\.isValidRecrod\(/g, '.isValidRecord('],
+  [/\.isVlaidRecord\(/g, '.isValidRecord('],
+  // setNewGuidValue
+  [/\.setNewGuidVlaue\(/g, '.setNewGuidValue('],
+  [/\.setNewGuidValeu\(/g, '.setNewGuidValue('],
+  // newRecord
+  [/\.newRecrod\(/g, '.newRecord('],
+  [/\.newReocrd\(/g, '.newRecord('],
+  // initialize
+  [/\.intialize\(/g, '.initialize('],
+  [/\.intiialize\(/g, '.initialize('],
+  [/\.initalize\(/g, '.initialize('],
+  // isActionAborted
+  [/\.isActionAbortd\(/g, '.isActionAborted('],
+  [/\.isActoinAborted\(/g, '.isActionAborted('],
+  // setCategory
+  [/\.setCatagory\(/g, '.setCategory('],
+  [/\.setCategroy\(/g, '.setCategory('],
+  [/\.setCatgeory\(/g, '.setCategory('],
+  // getClassDisplayValue
+  [/\.getClassDisplayVlaue\(/g, '.getClassDisplayValue('],
+  [/\.getClassDisplayValeu\(/g, '.getClassDisplayValue('],
+  [/\.getClassDiplayValue\(/g, '.getClassDisplayValue('],
+  // getRecordClassName
+  [/\.getRecordClassNmae\(/g, '.getRecordClassName('],
+  [/\.getRecordClassNaem\(/g, '.getRecordClassName('],
+  // updateMultiple
+  [/\.updateMutliple\(/g, '.updateMultiple('],
+  [/\.udpateMultiple\(/g, '.updateMultiple('],
+  [/\.updateMultipe\(/g, '.updateMultiple('],
+  // getLink
+  [/\.getLnik\(/g, '.getLink('],
+  [/\.getLik\(/g, '.getLink('],
+  // getBooleanValue
+  [/\.getBooleanVlaue\(/g, '.getBooleanValue('],
+  [/\.getBooleanValeu\(/g, '.getBooleanValue('],
+  [/\.getBooelanValue\(/g, '.getBooleanValue('],
+  // setQueryReferences
+  [/\.setQueryRefernces\(/g, '.setQueryReferences('],
+  [/\.setQueryReferecnes\(/g, '.setQueryReferences('],
 ];
 
 // GlideElement method typos
@@ -180,6 +240,30 @@ const GLIDE_ELEMENT_TYPOS = [
   [/\.dateNumericValeu\(/g, '.dateNumericValue('],
   [/\.getChocies\(/g, '.getChoices('],
   [/\.getChioces\(/g, '.getChoices('],
+  // getAttribute
+  [/\.getAttriubte\(/g, '.getAttribute('],
+  [/\.getAtributte\(/g, '.getAttribute('],
+  [/\.getAttrbiute\(/g, '.getAttribute('],
+  // getBooleanAttribute
+  [/\.getBooleanAttriubte\(/g, '.getBooleanAttribute('],
+  [/\.getBooleanAtributte\(/g, '.getBooleanAttribute('],
+  // getHTMLValue
+  [/\.getHTMLVlaue\(/g, '.getHTMLValue('],
+  [/\.getHTMlValue\(/g, '.getHTMLValue('],
+  [/\.getHtmlVlaue\(/g, '.getHTMLValue('],
+  // setDateNumericValue
+  [/\.setDateNumericVlaue\(/g, '.setDateNumericValue('],
+  [/\.setDateNumericValeu\(/g, '.setDateNumericValue('],
+  // getGlideObject
+  [/\.getGlideObeject\(/g, '.getGlideObject('],
+  [/\.getGlideObjcet\(/g, '.getGlideObject('],
+  // setDisplayValue
+  [/\.setDislplayValue\(/g, '.setDisplayValue('],
+  [/\.setDisplayVlaue\(/g, '.setDisplayValue('],
+  [/\.setDisplayValeu\(/g, '.setDisplayValue('],
+  // setInitialValue
+  [/\.setInitailValue\(/g, '.setInitialValue('],
+  [/\.setInitialVlaue\(/g, '.setInitialValue('],
 ];
 
 // ServiceNow class name typos
@@ -231,6 +315,86 @@ const CLASS_NAME_TYPOS = [
   [/RESMessageV2/g, 'RESTMessageV2'],
   [/SOAPMessagV2/g, 'SOAPMessageV2'],
   [/SOAPMessagev2/g, 'SOAPMessageV2'],
+  // GlideSchedule
+  [/GlideScheulde/g, 'GlideSchedule'],
+  [/GlidSchedule/g, 'GlideSchedule'],
+  [/GlideSchdule/g, 'GlideSchedule'],
+  [/GlideScehdule/g, 'GlideSchedule'],
+  // GlideDuration
+  [/GlideDuraiton/g, 'GlideDuration'],
+  [/GldieDuration/g, 'GlideDuration'],
+  [/GlideDuraton/g, 'GlideDuration'],
+  // GlideLocale
+  [/GlideLoacle/g, 'GlideLocale'],
+  [/GlidLocale/g, 'GlideLocale'],
+  [/GlideLoacale/g, 'GlideLocale'],
+  // GlideScopedEvaluator
+  [/GlideScopedEvalutor/g, 'GlideScopedEvaluator'],
+  [/GlideScopedEvaultor/g, 'GlideScopedEvaluator'],
+  [/GlideScopedEvaluater/g, 'GlideScopedEvaluator'],
+  // GlideRecordSecure
+  [/GlideRecordSecrue/g, 'GlideRecordSecure'],
+  [/GlideReocrdSecure/g, 'GlideRecordSecure'],
+  [/GlideRecrodSecure/g, 'GlideRecordSecure'],
+  // GlideEmailOutbound
+  [/GlideEmailOutbond/g, 'GlideEmailOutbound'],
+  [/GlideEmailOutboud/g, 'GlideEmailOutbound'],
+  [/GlidEmailOutbound/g, 'GlideEmailOutbound'],
+  // GlideHTTPRequest
+  [/GlideHTTPReqeust/g, 'GlideHTTPRequest'],
+  [/GlideHTTPRequset/g, 'GlideHTTPRequest'],
+  [/GlideHttpRequest/g, 'GlideHTTPRequest'],
+  // GlideStringUtil
+  [/GlideStringUtl/g, 'GlideStringUtil'],
+  [/GldieStringUtil/g, 'GlideStringUtil'],
+  [/GlideStirngUtil/g, 'GlideStringUtil'],
+  // GlideXMLUtil
+  [/GlideXMlUtil/g, 'GlideXMLUtil'],
+  [/GlideXMLUtl/g, 'GlideXMLUtil'],
+  [/GldieXMLUtil/g, 'GlideXMLUtil'],
+  // GlideQueryCondition
+  [/GlideQueryCondtion/g, 'GlideQueryCondition'],
+  [/GlideQueryConditon/g, 'GlideQueryCondition'],
+  [/GlidQueryCondition/g, 'GlideQueryCondition'],
+  // TemplatePrinter
+  [/TemplatePrinter/g, 'TemplatePrinter'],
+  [/TemplatePritner/g, 'TemplatePrinter'],
+  [/TemplateePrinter/g, 'TemplatePrinter'],
+  // Workflow
+  [/Worklfow/g, 'Workflow'],
+  [/Worklflow/g, 'Workflow'],
+  [/Worfklow/g, 'Workflow'],
+  // XMLDocument2
+  [/XMLDocuemnt2/g, 'XMLDocument2'],
+  [/XMLDocumnet2/g, 'XMLDocument2'],
+  [/XMlDocument2/g, 'XMLDocument2'],
+  // XMLNode
+  [/XMLNdoe/g, 'XMLNode'],
+  [/XMLNoed/g, 'XMLNode'],
+  [/XMlNode/g, 'XMLNode'],
+  // GlideDBFunctionBuilder
+  [/GlideDBFuncitonBuilder/g, 'GlideDBFunctionBuilder'],
+  [/GlideDBFunctionBulder/g, 'GlideDBFunctionBuilder'],
+  // GlideCalendarDateTime
+  [/GlideCalendarDateTiem/g, 'GlideCalendarDateTime'],
+  [/GlideCalendarDatetime/g, 'GlideCalendarDateTime'],
+  [/GlideCaledndarDateTime/g, 'GlideCalendarDateTime'],
+  // GlideElement
+  [/GlideElment/g, 'GlideElement'],
+  [/GlideElemnt/g, 'GlideElement'],
+  [/GldieElement/g, 'GlideElement'],
+  // GlideTime
+  [/GlideTiem/g, 'GlideTime'],
+  [/GldieTime/g, 'GlideTime'],
+  [/GlidTiem/g, 'GlideTime'],
+  // GlideDate
+  [/GlideDat/g, 'GlideDate'],
+  [/GldieDate/g, 'GlideDate'],
+  [/GlideDaet/g, 'GlideDate'],
+  // GlideDigest
+  [/GlideDigset/g, 'GlideDigest'],
+  [/GldieDgest/g, 'GlideDigest'],
+  [/GlideDigst/g, 'GlideDigest'],
 ];
 
 // GlideDateTime method typos
@@ -278,6 +442,95 @@ const GLIDE_DATETIME_TYPOS = [
   [/\.aftre\(/g, '.after('],
   [/\.onOrBeofre\(/g, '.onOrBefore('],
   [/\.onOrAftre\(/g, '.onOrAfter('],
+  // hasDate
+  [/\.hasDat\(/g, '.hasDate('],
+  [/\.hasDaet\(/g, '.hasDate('],
+  // equals
+  [/\.equlas\(/g, '.equals('],
+  [/\.eqauls\(/g, '.equals('],
+  // getYearLocalTime
+  [/\.getYearLocalTiem\(/g, '.getYearLocalTime('],
+  [/\.getYaerLocalTime\(/g, '.getYearLocalTime('],
+  // getYearUTC
+  [/\.getYearUTc\(/g, '.getYearUTC('],
+  [/\.getYaerUTC\(/g, '.getYearUTC('],
+  // getMonthUTC
+  [/\.getMontUTC\(/g, '.getMonthUTC('],
+  [/\.getMonhtUTC\(/g, '.getMonthUTC('],
+  // getDayOfMonthLocalTime
+  [/\.getDayOfMonthLocalTiem\(/g, '.getDayOfMonthLocalTime('],
+  [/\.getDayOfMonhtLocalTime\(/g, '.getDayOfMonthLocalTime('],
+  // getDayOfMonthUTC
+  [/\.getDayOfMonthUTc\(/g, '.getDayOfMonthUTC('],
+  [/\.getDayOfMonhtUTC\(/g, '.getDayOfMonthUTC('],
+  // getWeekOfYearLocalTime
+  [/\.getWeekOfYearLocalTiem\(/g, '.getWeekOfYearLocalTime('],
+  [/\.getWeekOfYaerLocalTime\(/g, '.getWeekOfYearLocalTime('],
+  // getWeekOfYearUTC
+  [/\.getWeekOfYearUTc\(/g, '.getWeekOfYearUTC('],
+  [/\.getWeekOfYaerUTC\(/g, '.getWeekOfYearUTC('],
+  // getInternalFormattedLocalTime
+  [/\.getInternalFormattedLocalTiem\(/g, '.getInternalFormattedLocalTime('],
+  [/\.getInternalFormatedLocalTime\(/g, '.getInternalFormattedLocalTime('],
+  // setGlideDateTime
+  [/\.setGlideDateTiem\(/g, '.setGlideDateTime('],
+  [/\.setGldieDateTIme\(/g, '.setGlideDateTime('],
+  // setValueUTC
+  [/\.setValueUTc\(/g, '.setValueUTC('],
+  [/\.setVlaueUTC\(/g, '.setValueUTC('],
+  // getErrorMsg
+  [/\.getErrorMgs\(/g, '.getErrorMsg('],
+  [/\.getErorrMsg\(/g, '.getErrorMsg('],
+];
+
+// GlideSchedule method typos
+const GLIDE_SCHEDULE_TYPOS = [
+  // add
+  [/\.setTimeZoen\(/g, '.setTimeZone('],
+  [/\.setTimeZon\(/g, '.setTimeZone('],
+  // duration
+  [/\.duraiton\(/g, '.duration('],
+  [/\.duraion\(/g, '.duration('],
+  // getName
+  [/\.getNmae\(/g, '.getName('],
+  [/\.getNaem\(/g, '.getName('],
+  // isInSchedule
+  [/\.isInSchedul\(/g, '.isInSchedule('],
+  [/\.isInScedule\(/g, '.isInSchedule('],
+  [/\.isInScheudule\(/g, '.isInSchedule('],
+  // whenNext
+  [/\.whenNex\(/g, '.whenNext('],
+  [/\.wehnNext\(/g, '.whenNext('],
+  // isValid
+  [/\.isVlaid\(/g, '.isValid('],
+  [/\.isValdi\(/g, '.isValid('],
+  // load
+  [/\.laod\(/g, '.load('],
+  [/\.loda\(/g, '.load('],
+];
+
+// GlideDuration method typos
+const GLIDE_DURATION_TYPOS = [
+  // add
+  [/\.addDuraiton\(/g, '.add('],
+  // getByFormat
+  [/\.getByFromat\(/g, '.getByFormat('],
+  [/\.getByFomrat\(/g, '.getByFormat('],
+  // getDayPart
+  [/\.getDayPrat\(/g, '.getDayPart('],
+  [/\.getDyaPart\(/g, '.getDayPart('],
+  // getDurationValue
+  [/\.getDurationVlaue\(/g, '.getDurationValue('],
+  [/\.getDurationValeu\(/g, '.getDurationValue('],
+  // getRoundedDayPart
+  [/\.getRoundedDayPrat\(/g, '.getRoundedDayPart('],
+  [/\.getRoundedDyaPart\(/g, '.getRoundedDayPart('],
+  // setDisplayValue
+  [/\.setDisplayVlaue\(/g, '.setDisplayValue('],
+  [/\.setDispalyValue\(/g, '.setDisplayValue('],
+  // subtract
+  [/\.subtarct\(/g, '.subtract('],
+  [/\.substract\(/g, '.subtract('],
 ];
 
 // GlideUser / gs.getUser() method typos
@@ -566,6 +819,134 @@ const GS_TYPOS = [
   [/gs\.urlDecdoe\(/g, 'gs.urlDecode('],
   [/gs\.xmlToJOSN\(/g, 'gs.xmlToJSON('],
   [/gs\.xmlTOJSON\(/g, 'gs.xmlToJSON('],
+  // getDisplayName
+  [/gs\.getDisplayNmae\(/g, 'gs.getDisplayName('],
+  [/gs\.getDisplayNaem\(/g, 'gs.getDisplayName('],
+  // getCurrentScopeName
+  [/gs\.getCurrentScopeNmae\(/g, 'gs.getCurrentScopeName('],
+  [/gs\.getCurentScopeName\(/g, 'gs.getCurrentScopeName('],
+  // getSession
+  [/gs\.getSesion\(/g, 'gs.getSession('],
+  [/gs\.getSesson\(/g, 'gs.getSession('],
+  // getTimeZoneName
+  [/gs\.getTimeZoneNmae\(/g, 'gs.getTimeZoneName('],
+  [/gs\.getTimZoneName\(/g, 'gs.getTimeZoneName('],
+  // hoursAgo
+  [/gs\.hoursAgo\(/g, 'gs.hoursAgo('],
+  [/gs\.horusAgo\(/g, 'gs.hoursAgo('],
+  // hoursAgoStart
+  [/gs\.hoursAgoStrat\(/g, 'gs.hoursAgoStart('],
+  [/gs\.horusAgoStart\(/g, 'gs.hoursAgoStart('],
+  // hoursAgoEnd
+  [/gs\.hoursAgoEdn\(/g, 'gs.hoursAgoEnd('],
+  [/gs\.horusAgoEnd\(/g, 'gs.hoursAgoEnd('],
+  // daysAgo
+  [/gs\.daysAgo\(/g, 'gs.daysAgo('],
+  [/gs\.daysAgo\(/g, 'gs.daysAgo('],
+  [/gs\.daysago\(/g, 'gs.daysAgo('],
+  // daysAgoStart
+  [/gs\.daysAgoStrat\(/g, 'gs.daysAgoStart('],
+  [/gs\.daysAgoStrt\(/g, 'gs.daysAgoStart('],
+  // daysAgoEnd
+  [/gs\.daysAgoEdn\(/g, 'gs.daysAgoEnd('],
+  [/gs\.daysAgoEdn\(/g, 'gs.daysAgoEnd('],
+  // monthsAgo
+  [/gs\.monthsAgo\(/g, 'gs.monthsAgo('],
+  [/gs\.monthsago\(/g, 'gs.monthsAgo('],
+  [/gs\.montshAgo\(/g, 'gs.monthsAgo('],
+  // monthsAgoStart
+  [/gs\.monthsAgoStrat\(/g, 'gs.monthsAgoStart('],
+  [/gs\.montshAgoStart\(/g, 'gs.monthsAgoStart('],
+  // quartersAgo
+  [/gs\.quartersago\(/g, 'gs.quartersAgo('],
+  [/gs\.quartersAgo\(/g, 'gs.quartersAgo('],
+  // yearsAgo
+  [/gs\.yearsago\(/g, 'gs.yearsAgo('],
+  [/gs\.yaersAgo\(/g, 'gs.yearsAgo('],
+  // beginningOfLastMonth
+  [/gs\.beginningOfLatsMonth\(/g, 'gs.beginningOfLastMonth('],
+  [/gs\.beginingOfLastMonth\(/g, 'gs.beginningOfLastMonth('],
+  // beginningOfLastWeek
+  [/gs\.beginningOfLatsWeek\(/g, 'gs.beginningOfLastWeek('],
+  [/gs\.beginingOfLastWeek\(/g, 'gs.beginningOfLastWeek('],
+  // beginningOfLastYear
+  [/gs\.beginningOfLatsYear\(/g, 'gs.beginningOfLastYear('],
+  [/gs\.beginingOfLastYear\(/g, 'gs.beginningOfLastYear('],
+  // beginningOfThisMonth
+  [/gs\.beginningOfThisMont\(/g, 'gs.beginningOfThisMonth('],
+  [/gs\.beginingOfThisMonth\(/g, 'gs.beginningOfThisMonth('],
+  // beginningOfThisQuarter
+  [/gs\.beginningOfThisQuater\(/g, 'gs.beginningOfThisQuarter('],
+  [/gs\.beginingOfThisQuarter\(/g, 'gs.beginningOfThisQuarter('],
+  // beginningOfThisWeek
+  [/gs\.beginningOfThisWeke\(/g, 'gs.beginningOfThisWeek('],
+  [/gs\.beginingOfThisWeek\(/g, 'gs.beginningOfThisWeek('],
+  // beginningOfThisYear
+  [/gs\.beginningOfThisYaer\(/g, 'gs.beginningOfThisYear('],
+  [/gs\.beginingOfThisYear\(/g, 'gs.beginningOfThisYear('],
+  // endOfLastMonth
+  [/gs\.endOfLatsMonth\(/g, 'gs.endOfLastMonth('],
+  [/gs\.endOfLastMont\(/g, 'gs.endOfLastMonth('],
+  // endOfLastWeek
+  [/gs\.endOfLatsWeek\(/g, 'gs.endOfLastWeek('],
+  [/gs\.endOfLastWeke\(/g, 'gs.endOfLastWeek('],
+  // endOfLastYear
+  [/gs\.endOfLatsYear\(/g, 'gs.endOfLastYear('],
+  [/gs\.endOfLastYaer\(/g, 'gs.endOfLastYear('],
+  // endOfThisMonth
+  [/gs\.endOfThisMont\(/g, 'gs.endOfThisMonth('],
+  [/gs\.endOfThisMOnth\(/g, 'gs.endOfThisMonth('],
+  // endOfThisQuarter
+  [/gs\.endOfThisQuater\(/g, 'gs.endOfThisQuarter('],
+  [/gs\.endOfThisQuaarter\(/g, 'gs.endOfThisQuarter('],
+  // endOfThisWeek
+  [/gs\.endOfThisWeke\(/g, 'gs.endOfThisWeek('],
+  [/gs\.endOfThisWek\(/g, 'gs.endOfThisWeek('],
+  // endOfThisYear
+  [/gs\.endOfThisYaer\(/g, 'gs.endOfThisYear('],
+  [/gs\.endOfThisYera\(/g, 'gs.endOfThisYear('],
+  // generateGUID
+  [/gs\.generateGUId\(/g, 'gs.generateGUID('],
+  [/gs\.genreateGUID\(/g, 'gs.generateGUID('],
+  // getCallerScopeName
+  [/gs\.getCallerScopeNmae\(/g, 'gs.getCallerScopeName('],
+  [/gs\.getCalelrScopeName\(/g, 'gs.getCallerScopeName('],
+  // flushMessages
+  [/gs\.flushMessgaes\(/g, 'gs.flushMessages('],
+  [/gs\.flsuhMessages\(/g, 'gs.flushMessages('],
+  // include
+  [/gs\.incldue\(/g, 'gs.include('],
+  [/gs\.inlcude\(/g, 'gs.include('],
+  // isDebugging
+  [/gs\.isDebuging\(/g, 'gs.isDebugging('],
+  [/gs\.isDbugging\(/g, 'gs.isDebugging('],
+  // isInteractive
+  [/gs\.isInteratcive\(/g, 'gs.isInteractive('],
+  [/gs\.isIntreactive\(/g, 'gs.isInteractive('],
+  // isLoggedIn
+  [/gs\.isLogedIn\(/g, 'gs.isLoggedIn('],
+  [/gs\.isLoggedinn\(/g, 'gs.isLoggedIn('],
+  // isMobile
+  [/gs\.isMobiel\(/g, 'gs.isMobile('],
+  [/gs\.isMoblile\(/g, 'gs.isMobile('],
+  // workflowFlush
+  [/gs\.workflowFlsuh\(/g, 'gs.workflowFlush('],
+  [/gs\.workflowFulsh\(/g, 'gs.workflowFlush('],
+  // sleep
+  [/gs\.slepe\(/g, 'gs.sleep('],
+  [/gs\.slep\(/g, 'gs.sleep('],
+  // base64Encode
+  [/gs\.base64Encdoe\(/g, 'gs.base64Encode('],
+  [/gs\.base46Encode\(/g, 'gs.base64Encode('],
+  // base64Decode
+  [/gs\.base64Decdoe\(/g, 'gs.base64Decode('],
+  [/gs\.base46Decode\(/g, 'gs.base64Decode('],
+  // dateDiff
+  [/gs\.dateDif\(/g, 'gs.dateDiff('],
+  [/gs\.dateDff\(/g, 'gs.dateDiff('],
+  // dateGenerate
+  [/gs\.dateGenrate\(/g, 'gs.dateGenerate('],
+  [/gs\.datGeenerate\(/g, 'gs.dateGenerate('],
 ];
 
 // Other ServiceNow class method typos
@@ -589,6 +970,36 @@ const OTHER_TYPOS = [
   [/\.scratchapd\./g, '.scratchpad.'],
   [/\.scrtachpad\./g, '.scratchpad.'],
   [/\.scratcphad\./g, '.scratchpad.'],
+  // GlideScriptedProcessor
+  [/\.wrietOutput\(/g, '.writeOutput('],
+  [/\.writeOuput\(/g, '.writeOutput('],
+  [/\.writeOutpt\(/g, '.writeOutput('],
+  // XMLDocument2
+  [/\.parseXMl\(/g, '.parseXML('],
+  [/\.parseXML\(/g, '.parseXML('],
+  [/\.getDocuemntElement\(/g, '.getDocumentElement('],
+  [/\.getDocumentElment\(/g, '.getDocumentElement('],
+  [/\.createElementWithTextVlaue\(/g, '.createElementWithTextValue('],
+  [/\.createEelmentWithTextValue\(/g, '.createElementWithTextValue('],
+  [/\.getNodeNmae\(/g, '.getNodeName('],
+  [/\.getNodeVlaue\(/g, '.getNodeValue('],
+  [/\.getChildNodeIteraotr\(/g, '.getChildNodeIterator('],
+  [/\.getChildNodeItertor\(/g, '.getChildNodeIterator('],
+  // GlideEmailOutbound
+  [/\.setSubejct\(/g, '.setSubject('],
+  [/\.setSubjcet\(/g, '.setSubject('],
+  [/\.setBdoy\(/g, '.setBody('],
+  [/\.setBoyd\(/g, '.setBody('],
+  [/\.addRecipeint\(/g, '.addRecipient('],
+  [/\.addRecipent\(/g, '.addRecipient('],
+  [/\.setFomr\(/g, '.setFrom('],
+  [/\.setReplyTo\(/g, '.setReplyTo('],
+  [/\.setRepltyTo\(/g, '.setReplyTo('],
+  // Action / Workflow
+  [/\.setRedirctURL\(/g, '.setRedirectURL('],
+  [/\.setRedirectUrl\(/g, '.setRedirectURL('],
+  [/\.setRetrunValue\(/g, '.setReturnValue('],
+  [/\.setReturnVlaue\(/g, '.setReturnValue('],
 ];
 
 /**
@@ -628,6 +1039,8 @@ export function applyServiceNowFixes(code) {
     { name: 'GlideElement method', list: GLIDE_ELEMENT_TYPOS },
     { name: 'ServiceNow class name', list: CLASS_NAME_TYPOS },
     { name: 'GlideDateTime method', list: GLIDE_DATETIME_TYPOS },
+    { name: 'GlideSchedule method', list: GLIDE_SCHEDULE_TYPOS },
+    { name: 'GlideDuration method', list: GLIDE_DURATION_TYPOS },
     { name: 'GlideUser method', list: GLIDE_USER_TYPOS },
     { name: 'GlideSession method', list: GLIDE_SESSION_TYPOS },
     { name: 'REST/SOAP method', list: SN_WS_TYPOS },
