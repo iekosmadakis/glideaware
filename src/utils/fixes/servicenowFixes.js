@@ -1,15 +1,18 @@
 /**
- * ServiceNow-Specific Fixes
- * 
- * Corrects common typos in ServiceNow API method names and class names,
+ * @fileoverview ServiceNow-Specific Fixes
+ * @description Corrects common typos in ServiceNow API method names and class names,
  * and applies intelligent code transformations for best practices.
- * 
+ *
  * Two-pass approach:
  * 1. Fast regex-based corrections for known common typos
  * 2. Fuzzy matching (Damerau-Levenshtein) for any remaining typos
  */
 
 import { fuzzyCorrectCode } from './fuzzyMatcher.js';
+
+// ============================================================================
+// TYPO CORRECTION PATTERNS
+// ============================================================================
 
 // GlideRecord method typos
 const GLIDE_RECORD_TYPOS = [

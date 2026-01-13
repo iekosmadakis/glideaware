@@ -1,7 +1,6 @@
 /**
- * SNCodePolish - Main Code Formatter
- * 
- * Orchestrates code formatting using Prettier and custom fixes.
+ * @fileoverview SNCodePolish - Main Code Formatter
+ * @description Orchestrates code formatting using Prettier and custom fixes.
  * Supports JavaScript (ServiceNow) and JSON modes.
  * All processing happens client-side (offline capable).
  */
@@ -16,6 +15,10 @@ import { applyJsonFixes } from './fixes/jsonFixes';
 import { analyzeGenericWarnings } from './warnings/genericWarnings';
 import { analyzeServiceNowWarnings } from './warnings/servicenowWarnings';
 import { analyzeJsonWarnings } from './warnings/jsonWarnings';
+
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
 
 /** Prettier configuration for JavaScript (ServiceNow) */
 const JS_PRETTIER_CONFIG = {
@@ -45,8 +48,14 @@ const JSON_PRETTIER_CONFIG = {
   endOfLine: 'lf'
 };
 
+// ============================================================================
+// JAVASCRIPT FORMATTING
+// ============================================================================
+
 /**
- * Main formatting function for JavaScript (ServiceNow) code
+ * Main formatting function for JavaScript (ServiceNow) code.
+ * Applies generic fixes, ServiceNow fixes, and Prettier formatting.
+ *
  * @param {string} code - The code to format
  * @returns {Promise<Object>} Result object with output, fixes, warnings, errors, and metrics
  */
@@ -81,7 +90,7 @@ export async function polishCode(code) {
     // Step 4: Analyze for warnings and errors
     const genericWarnings = analyzeGenericWarnings(formatted);
     const snWarningsResult = analyzeServiceNowWarnings(formatted);
-    
+
     // Handle both array format and { warnings, errors } format
     let snWarnings = [];
     let snErrors = [];
@@ -91,7 +100,7 @@ export async function polishCode(code) {
       snWarnings = snWarningsResult.warnings || [];
       snErrors = snWarningsResult.errors || [];
     }
-    
+
     // Include fuzzy match suggestions as warnings (low confidence)
     const allWarnings = [...genericWarnings, ...snWarnings, ...snSuggestions];
     const allErrors = [...snErrors];
@@ -114,10 +123,10 @@ export async function polishCode(code) {
       metrics
     };
   } catch (prettierError) {
-    // Extract error location if available
+    // Extract error location from Prettier error message
     const errorMatch = prettierError.message.match(/\((\d+):(\d+)\)/);
     let errorInfo = prettierError.message;
-    
+
     if (errorMatch) {
       const line = parseInt(errorMatch[1]);
       const col = parseInt(errorMatch[2]);
@@ -137,8 +146,14 @@ export async function polishCode(code) {
   }
 }
 
+// ============================================================================
+// JSON FORMATTING
+// ============================================================================
+
 /**
- * Main formatting function for JSON content
+ * Main formatting function for JSON content.
+ * Applies JSON fixes, validation, and Prettier formatting.
+ *
  * @param {string} code - The JSON content to format
  * @returns {Promise<Object>} Result object with output, fixes, warnings, errors, and metrics
  */
@@ -158,18 +173,17 @@ export async function polishJson(code) {
     // Step 1: Apply JSON-specific fixes (comments, trailing commas, quotes)
     const { processed, fixes } = applyJsonFixes(code);
 
-    // Step 2: Pre-validate before Prettier (catch more detailed errors)
+    // Step 2: Pre-validate before Prettier (catch detailed errors)
     const jsonWarningsResult = analyzeJsonWarnings(processed);
-    
-    // If there are syntax errors from our analyzer, report them
+
+    // If there are syntax errors, try Prettier anyway (may fix some issues)
     if (jsonWarningsResult.errors.length > 0) {
-      // Try to format anyway - Prettier might fix some issues
       try {
         const formatted = await prettier.format(processed, JSON_PRETTIER_CONFIG);
-        
+
         // Re-analyze the formatted output
         const finalWarnings = analyzeJsonWarnings(formatted);
-        
+
         const metrics = {
           originalLines: code.split('\n').length,
           formattedLines: formatted.split('\n').length,
@@ -223,10 +237,10 @@ export async function polishJson(code) {
       metrics
     };
   } catch (prettierError) {
-    // Extract error location if available
+    // Extract error location from Prettier error message
     const errorMatch = prettierError.message.match(/\((\d+):(\d+)\)/);
     let errorInfo = prettierError.message;
-    
+
     if (errorMatch) {
       const line = parseInt(errorMatch[1]);
       const col = parseInt(errorMatch[2]);

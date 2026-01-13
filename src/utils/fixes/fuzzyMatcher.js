@@ -1,9 +1,8 @@
 /**
- * Fuzzy Matcher for ServiceNow API Corrections
- * 
- * Uses Damerau-Levenshtein edit distance with context-aware dictionaries
+ * @fileoverview Fuzzy Matcher for ServiceNow API Corrections
+ * @description Uses Damerau-Levenshtein edit distance with context-aware dictionaries
  * to detect and correct typos in ServiceNow API method/class names.
- * 
+ *
  * Features:
  * - Damerau-Levenshtein distance (handles transpositions)
  * - Context-aware matching (type inference)

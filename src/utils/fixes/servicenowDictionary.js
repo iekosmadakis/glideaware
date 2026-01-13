@@ -1,9 +1,7 @@
 /**
- * ServiceNow API Dictionary
- * 
- * Canonical list of valid ServiceNow API classes and methods.
+ * @fileoverview ServiceNow API Dictionary
+ * @description Canonical list of valid ServiceNow API classes and methods.
  * Used for fuzzy matching to detect and correct typos.
- * 
  * Organized by class/context for context-aware corrections.
  */
 

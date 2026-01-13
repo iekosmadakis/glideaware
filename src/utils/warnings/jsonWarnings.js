@@ -1,14 +1,20 @@
 /**
- * JSON Warnings
- * 
- * Analyzes JSON content for common issues, structural problems,
- * and best practice violations.
+ * @fileoverview JSON Warnings
+ * @description Analyzes JSON content for common issues, structural problems,
+ * and best practice violations. Provides both errors (syntax issues) and
+ * warnings (quality/style issues).
  */
 
+// ============================================================================
+// MAIN EXPORT
+// ============================================================================
+
 /**
- * Analyzes JSON for warnings and errors
+ * Analyzes JSON for warnings and errors.
+ * Checks syntax, structure, and best practices.
+ *
  * @param {string} code - The JSON content to analyze
- * @returns {{ warnings: string[], errors: string[] }}
+ * @returns {{ warnings: string[], errors: string[] }} Object with warnings and errors arrays
  */
 export function analyzeJsonWarnings(code) {
   const warnings = [];
@@ -18,7 +24,11 @@ export function analyzeJsonWarnings(code) {
     return { warnings, errors };
   }
 
-  // Check for syntax errors by attempting to parse
+  // -------------------------------------------------------------------------
+  // Syntax Validation
+  // -------------------------------------------------------------------------
+
+  // Attempt to parse JSON to detect syntax errors
   try {
     JSON.parse(code);
   } catch (e) {
@@ -35,6 +45,10 @@ export function analyzeJsonWarnings(code) {
     return { warnings, errors };
   }
 
+  // -------------------------------------------------------------------------
+  // JSON Specification Errors
+  // -------------------------------------------------------------------------
+
   // Check for trailing commas (not valid in JSON)
   const trailingCommaPattern = /,\s*[\]}]/g;
   const trailingCommas = code.match(trailingCommaPattern);
@@ -43,10 +57,9 @@ export function analyzeJsonWarnings(code) {
   }
 
   // Check for single quotes (JSON requires double quotes)
-  const singleQuotePattern = /'[^']*'/g;
-  const inString = [];
   let inStringContext = false;
   let escaped = false;
+  const singleQuotePositions = [];
   for (let i = 0; i < code.length; i++) {
     const char = code[i];
     if (char === '\\' && inStringContext) {
@@ -57,11 +70,11 @@ export function analyzeJsonWarnings(code) {
       inStringContext = !inStringContext;
     }
     if (char === "'" && !inStringContext) {
-      inString.push(i);
+      singleQuotePositions.push(i);
     }
     escaped = false;
   }
-  if (inString.length > 0) {
+  if (singleQuotePositions.length > 0) {
     errors.push('Single quotes found - JSON requires double quotes');
   }
 
@@ -73,7 +86,11 @@ export function analyzeJsonWarnings(code) {
     errors.push(`Found ${commentCount} comment(s) - comments are not valid in JSON`);
   }
 
-  // Check for duplicate keys (requires parsing)
+  // -------------------------------------------------------------------------
+  // Quality Warnings
+  // -------------------------------------------------------------------------
+
+  // Check for duplicate keys (later value overrides)
   const duplicateKeys = findDuplicateKeys(code);
   if (duplicateKeys.length > 0) {
     duplicateKeys.forEach(key => {
@@ -94,33 +111,33 @@ export function analyzeJsonWarnings(code) {
     warnings.push(`${longStrings.length} very long string(s) detected (1000+ chars)`);
   }
 
-  // Check for empty arrays or objects that might be unintentional
+  // Check for many empty arrays/objects (may indicate incomplete data)
   const emptyArrays = (code.match(/\[\s*\]/g) || []).length;
   const emptyObjects = (code.match(/\{\s*\}/g) || []).length;
   if (emptyArrays + emptyObjects > 5) {
     warnings.push(`Multiple empty arrays/objects (${emptyArrays + emptyObjects}) - verify intentional`);
   }
 
-  // Check for null values
+  // Check for many null values (consider omitting)
   const nullValues = (code.match(/:\s*null\b/g) || []).length;
   if (nullValues > 10) {
     warnings.push(`Many null values (${nullValues}) - consider omitting null fields`);
   }
 
-  // Check for numeric keys (valid but often unintentional)
+  // Check for numeric keys (valid but often unintentional - use array instead)
   const numericKeyPattern = /"(\d+)"\s*:/g;
   const numericKeys = code.match(numericKeyPattern);
   if (numericKeys && numericKeys.length > 3) {
     warnings.push(`${numericKeys.length} numeric keys found - consider using an array instead`);
   }
 
-  // Large file warning
+  // Check for large file size (performance concern)
   const lineCount = code.split('\n').length;
   if (lineCount > 1000) {
     warnings.push(`Large JSON file (${lineCount} lines) - may impact performance`);
   }
 
-  // Check for unescaped special characters in strings
+  // Check for unescaped control characters
   const unescapedPattern = /[\x00-\x1f]/;
   if (unescapedPattern.test(code)) {
     warnings.push('Unescaped control characters detected - may cause parsing issues');
@@ -129,31 +146,20 @@ export function analyzeJsonWarnings(code) {
   return { warnings, errors };
 }
 
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
 /**
- * Find duplicate keys in JSON (walks through manually to detect)
+ * Finds duplicate keys in JSON by walking through the structure.
+ * Tracks keys at each nesting level separately.
+ *
  * @param {string} code - JSON string
  * @returns {string[]} Array of duplicate key names
  */
 function findDuplicateKeys(code) {
   const duplicates = [];
-  const keysByLevel = {};
   let depth = 0;
-
-  // Track brace depth as we scan
-  for (let i = 0; i < code.length; i++) {
-    const char = code[i];
-    
-    if (char === '{') {
-      depth++;
-      keysByLevel[depth] = new Set();
-    } else if (char === '}') {
-      delete keysByLevel[depth];
-      depth--;
-    }
-  }
-
-  // Reset and do a proper scan
-  depth = 0;
   const levelKeys = {};
   let inString = false;
   let escaped = false;
@@ -224,9 +230,11 @@ function findDuplicateKeys(code) {
 }
 
 /**
- * Calculate maximum nesting depth
+ * Calculates maximum nesting depth in JSON.
+ * Tracks { and [ as nesting levels.
+ *
  * @param {string} code - JSON string
- * @returns {number} Maximum depth
+ * @returns {number} Maximum nesting depth
  */
 function calculateMaxDepth(code) {
   let maxDepth = 0;

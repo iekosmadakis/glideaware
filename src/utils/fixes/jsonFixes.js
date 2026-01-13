@@ -1,14 +1,20 @@
 /**
- * JSON Fixes
- * 
- * Pre-processing fixes for JSON content including comment removal,
+ * @fileoverview JSON Fixes
+ * @description Pre-processing fixes for JSON content including comment removal,
  * trailing comma fixes, quote normalization, and structural repairs.
+ * These run before Prettier formatting to handle common JSON5/relaxed JSON patterns.
  */
 
+// ============================================================================
+// MAIN EXPORT
+// ============================================================================
+
 /**
- * Applies fixes to JSON content before formatting
+ * Applies fixes to JSON content before formatting.
+ * Handles common JSON issues like comments, trailing commas, and missing brackets.
+ *
  * @param {string} code - The JSON content to process
- * @returns {{ processed: string, fixes: string[] }}
+ * @returns {{ processed: string, fixes: string[] }} Processed JSON and list of applied fixes
  */
 export function applyJsonFixes(code) {
   let processed = code;
@@ -18,62 +24,62 @@ export function applyJsonFixes(code) {
     return { processed, fixes };
   }
 
-  // Normalize line endings
+  // Normalize line endings (Windows CRLF to Unix LF)
   if (processed.includes('\r\n')) {
     processed = processed.replace(/\r\n/g, '\n');
     fixes.push('Normalized line endings to LF');
   }
 
-  // Remove trailing whitespace
+  // Remove trailing whitespace from each line
   const trailingCount = (processed.match(/[ \t]+$/gm) || []).length;
   if (trailingCount > 0) {
     processed = processed.replace(/[ \t]+$/gm, '');
     fixes.push(`Removed trailing whitespace from ${trailingCount} lines`);
   }
 
-  // Remove single-line comments (// ...)
+  // Remove single-line comments (// ...) - not valid in JSON
   const singleLineComments = processed.match(/\/\/[^\n]*/g);
   if (singleLineComments && singleLineComments.length > 0) {
     processed = removeSingleLineComments(processed);
     fixes.push(`Removed ${singleLineComments.length} single-line comment(s)`);
   }
 
-  // Remove multi-line comments (/* ... */)
+  // Remove multi-line comments (/* ... */) - not valid in JSON
   const multiLineComments = processed.match(/\/\*[\s\S]*?\*\//g);
   if (multiLineComments && multiLineComments.length > 0) {
     processed = processed.replace(/\/\*[\s\S]*?\*\//g, '');
     fixes.push(`Removed ${multiLineComments.length} multi-line comment(s)`);
   }
 
-  // Fix trailing commas before ] or }
+  // Remove trailing commas before ] or } - not valid in JSON
   const trailingCommasBefore = processed;
   processed = removeTrailingCommas(processed);
   if (processed !== trailingCommasBefore) {
     fixes.push('Removed trailing commas');
   }
 
-  // Convert single quotes to double quotes (for string values and keys)
+  // Convert single quotes to double quotes (JSON requires double quotes)
   const singleQuotesBefore = processed;
   processed = convertSingleToDoubleQuotes(processed);
   if (processed !== singleQuotesBefore) {
     fixes.push('Converted single quotes to double quotes');
   }
 
-  // Fix unquoted keys (basic cases)
+  // Quote unquoted keys (JavaScript-style object keys)
   const unquotedKeysBefore = processed;
   processed = quoteUnquotedKeys(processed);
   if (processed !== unquotedKeysBefore) {
     fixes.push('Added quotes to unquoted keys');
   }
 
-  // Remove multiple consecutive commas
+  // Fix multiple consecutive commas (,, becomes ,)
   const multipleCommasBefore = processed;
   processed = processed.replace(/,(\s*,)+/g, ',');
   if (processed !== multipleCommasBefore) {
     fixes.push('Fixed multiple consecutive commas');
   }
 
-  // Clean up empty lines (reduce 3+ to 2)
+  // Reduce excessive blank lines (3+ to 2)
   const emptyLinesBefore = processed;
   processed = processed.replace(/\n{3,}/g, '\n\n');
   if (processed !== emptyLinesBefore) {
@@ -91,10 +97,16 @@ export function applyJsonFixes(code) {
   return { processed, fixes };
 }
 
+// ============================================================================
+// STRUCTURAL REPAIR
+// ============================================================================
+
 /**
- * Fix missing closing braces and brackets by analyzing structure
+ * Fixes missing closing braces and brackets by analyzing structure.
+ * Tracks opening brackets and adds missing closers at the end.
+ *
  * @param {string} code - JSON content
- * @returns {{ code: string, fixes: string[] }}
+ * @returns {{ code: string, fixes: string[] }} Fixed code and fix messages
  */
 function fixMissingClosingBrackets(code) {
   const fixes = [];
@@ -102,7 +114,7 @@ function fixMissingClosingBrackets(code) {
   let inString = false;
   let escaped = false;
 
-  // First pass: analyze the structure and track opening brackets
+  // Analyze structure and track unmatched opening brackets
   for (let i = 0; i < code.length; i++) {
     const char = code[i];
 
@@ -136,24 +148,22 @@ function fixMissingClosingBrackets(code) {
     }
   }
 
-  // If stack is empty, structure is balanced
+  // Structure is balanced - no fixes needed
   if (stack.length === 0) {
     return { code, fixes };
   }
 
-  // Build missing closers in reverse order (LIFO)
+  // Add missing closers in reverse order (LIFO)
   let result = code.trimEnd();
   const missingBraces = stack.filter(s => s.char === '{').length;
   const missingBrackets = stack.filter(s => s.char === '[').length;
 
-  // Add missing closers in reverse order
   for (let i = stack.length - 1; i >= 0; i--) {
     const opener = stack[i];
     const closer = opener.char === '{' ? '}' : ']';
     result += '\n' + closer;
   }
 
-  // Build fix messages
   if (missingBraces > 0) {
     fixes.push(`Added ${missingBraces} missing closing brace(s) '}'`);
   }
@@ -164,8 +174,14 @@ function fixMissingClosingBrackets(code) {
   return { code: result, fixes };
 }
 
+// ============================================================================
+// COMMENT REMOVAL
+// ============================================================================
+
 /**
- * Remove single-line comments while preserving strings
+ * Removes single-line comments while preserving strings.
+ * Comments inside strings are not removed.
+ *
  * @param {string} code - JSON content
  * @returns {string} Code without single-line comments
  */
@@ -200,8 +216,8 @@ function removeSingleLineComments(code) {
       continue;
     }
 
+    // Found comment start outside of string - skip to end of line
     if (!inString && char === '/' && nextChar === '/') {
-      // Skip until end of line
       while (i < code.length && code[i] !== '\n') {
         i++;
       }
@@ -215,8 +231,14 @@ function removeSingleLineComments(code) {
   return result;
 }
 
+// ============================================================================
+// COMMA HANDLING
+// ============================================================================
+
 /**
- * Remove trailing commas before ] or }
+ * Removes trailing commas before ] or }.
+ * Trailing commas are not valid in JSON.
+ *
  * @param {string} code - JSON content
  * @returns {string} Code without trailing commas
  */
@@ -251,15 +273,14 @@ function removeTrailingCommas(code) {
       continue;
     }
 
+    // Check if comma is followed by closing bracket (skip whitespace)
     if (char === ',') {
-      // Look ahead for ] or } (skipping whitespace)
       let j = i + 1;
       while (j < code.length && /\s/.test(code[j])) {
         j++;
       }
       if (code[j] === ']' || code[j] === '}') {
-        // Skip this comma
-        continue;
+        continue; // Skip this trailing comma
       }
     }
 
@@ -269,8 +290,14 @@ function removeTrailingCommas(code) {
   return result;
 }
 
+// ============================================================================
+// QUOTE HANDLING
+// ============================================================================
+
 /**
- * Convert single quotes to double quotes (handles strings only)
+ * Converts single quotes to double quotes.
+ * Handles strings only, escapes existing double quotes inside converted strings.
+ *
  * @param {string} code - JSON content
  * @returns {string} Code with double quotes
  */
@@ -303,11 +330,11 @@ function convertSingleToDoubleQuotes(code) {
 
     if (char === "'" && !inDoubleString) {
       inSingleString = !inSingleString;
-      result += '"';
+      result += '"'; // Convert to double quote
       continue;
     }
 
-    // Escape double quotes inside single-quoted strings that are being converted
+    // Escape double quotes inside single-quoted strings being converted
     if (inSingleString && char === '"') {
       result += '\\"';
       continue;
@@ -319,14 +346,18 @@ function convertSingleToDoubleQuotes(code) {
   return result;
 }
 
+// ============================================================================
+// KEY HANDLING
+// ============================================================================
+
 /**
- * Add quotes to unquoted keys (basic JavaScript-style object keys)
+ * Adds quotes to unquoted keys (JavaScript-style object keys).
+ * Only processes keys outside of strings.
+ *
  * @param {string} code - JSON content
  * @returns {string} Code with quoted keys
  */
 function quoteUnquotedKeys(code) {
-  // Match unquoted keys: word characters followed by colon
-  // But not inside strings
   let result = '';
   let inString = false;
   let escaped = false;
@@ -362,11 +393,11 @@ function quoteUnquotedKeys(code) {
       continue;
     }
 
-    // Check for unquoted key pattern: { or , followed by whitespace and word
+    // After { or , look for unquoted keys
     if ((char === '{' || char === ',') && i < code.length - 1) {
       result += char;
       i++;
-      
+
       // Skip whitespace
       let whitespace = '';
       while (i < code.length && /\s/.test(code[i])) {
@@ -375,15 +406,14 @@ function quoteUnquotedKeys(code) {
       }
       result += whitespace;
 
-      // Check for unquoted key
+      // Check for unquoted key (starts with letter, _, or $)
       if (i < code.length && /[a-zA-Z_$]/.test(code[i])) {
         let key = '';
-        let keyStart = i;
         while (i < code.length && /[a-zA-Z0-9_$]/.test(code[i])) {
           key += code[i];
           i++;
         }
-        
+
         // Skip whitespace after key
         let afterKey = '';
         while (i < code.length && /\s/.test(code[i])) {
@@ -391,11 +421,10 @@ function quoteUnquotedKeys(code) {
           i++;
         }
 
-        // Check if followed by colon (making it a key)
+        // If followed by colon, it's a key that needs quoting
         if (i < code.length && code[i] === ':') {
           result += '"' + key + '"' + afterKey;
         } else {
-          // Not a key, preserve as-is
           result += key + afterKey;
         }
       }
