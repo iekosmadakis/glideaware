@@ -23,7 +23,20 @@ Formats code using Prettier with ServiceNow-friendly settings (JavaScript) or cl
 
 ### 🔧 ServiceNow Auto-Fixes
 
-#### Typo Corrections
+#### Intelligent Typo Detection (Fuzzy Matching)
+SNCodePolish uses a **two-pass approach** for typo detection:
+
+1. **Fast regex patterns** for common known typos (instant)
+2. **Fuzzy matching** using Damerau-Levenshtein edit distance for any remaining typos
+
+**Features:**
+- **Context-aware corrections**: Detects variable types (`var gr = new GlideRecord(...)`) and only suggests methods valid for that class
+- **Confidence tiers**: High confidence (auto-fix), Medium confidence (auto-fix with note), Low confidence (warning only)
+- **Guardrails**: Only corrects in method-call context (`.method(`), requires winner to beat runner-up by margin
+
+**Example**: `gr.addQuerry()` → `gr.addQuery()` (detected because `gr` is known to be a `GlideRecord`)
+
+#### Common Typo Corrections
 | Category | Examples |
 |----------|----------|
 | **GlideRecord methods** | `addQeury` → `addQuery`, `getValeu` → `getValue`, `udpate` → `update`, `isert` → `insert`, `delte` → `delete`, `getRefrence` → `getReference`, `setLimt` → `setLimit`, `deleteReocrd` → `deleteRecord`, `getUniqueVlaue` → `getUniqueValue` |
@@ -222,13 +235,15 @@ src/
 └── utils/
     ├── codePolish.js          # Main orchestrator (JS + JSON)
     ├── fixes/
-    │   ├── genericFixes.js    # Generic JavaScript fixes
-    │   ├── servicenowFixes.js # ServiceNow-specific fixes
-    │   └── jsonFixes.js       # JSON-specific fixes
+    │   ├── genericFixes.js         # Generic JavaScript fixes
+    │   ├── servicenowFixes.js      # ServiceNow-specific fixes
+    │   ├── servicenowDictionary.js # ServiceNow API dictionary (classes, methods)
+    │   ├── fuzzyMatcher.js         # Damerau-Levenshtein fuzzy matching
+    │   └── jsonFixes.js            # JSON-specific fixes
     └── warnings/
-        ├── genericWarnings.js    # Generic JavaScript warnings
-        ├── servicenowWarnings.js # ServiceNow warnings & errors
-        └── jsonWarnings.js       # JSON warnings & errors
+        ├── genericWarnings.js      # Generic JavaScript warnings
+        ├── servicenowWarnings.js   # ServiceNow warnings & errors
+        └── jsonWarnings.js         # JSON warnings & errors
 ```
 
 ## Supported Script Types
