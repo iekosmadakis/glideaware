@@ -66,8 +66,11 @@ export async function polishCode(code) {
     // Step 1: Apply generic JavaScript fixes
     const { processed: genericProcessed, fixes: genericFixes } = applyGenericFixes(code);
 
-    // Step 2: Apply ServiceNow-specific fixes
-    const { processed: snProcessed, fixes: snFixes } = applyServiceNowFixes(genericProcessed);
+    // Step 2: Apply ServiceNow-specific fixes (includes fuzzy matching)
+    const snResult = applyServiceNowFixes(genericProcessed);
+    const snProcessed = snResult.processed;
+    const snFixes = snResult.fixes;
+    const snSuggestions = snResult.suggestions || []; // Low-confidence fuzzy matches
 
     // Combine all fixes
     const allFixes = [...genericFixes, ...snFixes];
@@ -89,7 +92,8 @@ export async function polishCode(code) {
       snErrors = snWarningsResult.errors || [];
     }
     
-    const allWarnings = [...genericWarnings, ...snWarnings];
+    // Include fuzzy match suggestions as warnings (low confidence)
+    const allWarnings = [...genericWarnings, ...snWarnings, ...snSuggestions];
     const allErrors = [...snErrors];
 
     // Calculate metrics

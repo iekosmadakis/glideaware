@@ -3,7 +3,13 @@
  * 
  * Corrects common typos in ServiceNow API method names and class names,
  * and applies intelligent code transformations for best practices.
+ * 
+ * Two-pass approach:
+ * 1. Fast regex-based corrections for known common typos
+ * 2. Fuzzy matching (Damerau-Levenshtein) for any remaining typos
  */
+
+import { fuzzyCorrectCode } from './fuzzyMatcher.js';
 
 // GlideRecord method typos
 const GLIDE_RECORD_TYPOS = [
@@ -1131,5 +1137,15 @@ export function applyServiceNowFixes(code) {
     fixes.push(`Converted ${strictCount} string comparison(s) to strict equality (===)`);
   }
 
-  return { processed, fixes };
+  // ==========================================================================
+  // PASS 2: Fuzzy Matching (catches typos not covered by regex patterns)
+  // ==========================================================================
+  const fuzzyResult = fuzzyCorrectCode(processed);
+  processed = fuzzyResult.processed;
+  fixes.push(...fuzzyResult.fixes);
+  
+  // Fuzzy suggestions are low-confidence and returned separately
+  const suggestions = fuzzyResult.suggestions;
+
+  return { processed, fixes, suggestions };
 }
