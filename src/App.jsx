@@ -4,9 +4,20 @@
  * Features dual-mode support (Polish/Compare), Monaco editor integration, and offline processing.
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import Editor, { DiffEditor } from '@monaco-editor/react';
+import ReactFlow, {
+  Controls,
+  Background,
+  useNodesState,
+  useEdgesState,
+  MiniMap
+} from 'reactflow';
+import 'reactflow/dist/style.css';
 import { polishCode, polishJson } from './utils/codePolish';
+import { parseCode, extractControlFlow } from './utils/astParser';
+import { generateFlowDiagram, getFlowStats } from './utils/flowGenerator';
+import FlowNode from './components/FlowNode';
 import { diff } from 'jsondiffpatch';
 import * as htmlFormatter from 'jsondiffpatch/formatters/html';
 import 'jsondiffpatch/formatters/styles/html.css';
@@ -112,6 +123,33 @@ const SAMPLE_JS_DIFF_LEFT = `// Business Rule: Auto-assign incidents
     gs.info('Auto-assignment complete');
 })(current, previous);`;
 
+// Sample JavaScript code for Visualization (valid, clean code)
+const SAMPLE_VISUALIZE_CODE = `// Business Rule: Auto-assign high priority incidents
+(function executeRule(current, previous) {
+    var gr = new GlideRecord('incident');
+    gr.addQuery('state', 1);
+    gr.addQuery('priority', '<=', 2);
+    gr.addQuery('assigned_to', '');
+    gr.setLimit(100);
+    gr.query();
+    
+    var count = 0;
+    while (gr.next()) {
+        if (current.active === true) {
+            try {
+                gr.setValue('assigned_to', gs.getUserID());
+                gr.setWorkflow(false);
+                gr.update();
+                count++;
+            } catch (e) {
+                gs.error('Failed to assign: ' + e.message);
+            }
+        }
+    }
+    
+    gs.info('Auto-assignment complete. Assigned: ' + count);
+})(current, previous);`;
+
 // Sample JavaScript code for Compare mode - Modified version
 const SAMPLE_JS_DIFF_RIGHT = `// Business Rule: Auto-assign high priority incidents
 // Added: Priority filter and error handling
@@ -214,8 +252,17 @@ function App() {
   // Mode state
   const [mode, setMode] = useState('javascript');
   const [jsonSubMode, setJsonSubMode] = useState('format');
-  const [jsSubMode, setJsSubMode] = useState('format');
+  const [jsSubMode, setJsSubMode] = useState('format'); // 'format', 'diff', or 'visualize'
   const [inputCode, setInputCode] = useState('');
+  
+  // Visualization state
+  const [visualizeCode, setVisualizeCode] = useState('');
+  const [flowNodes, setFlowNodes, onNodesChange] = useNodesState([]);
+  const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState([]);
+  const [flowStats, setFlowStats] = useState(null);
+  const [visualizeError, setVisualizeError] = useState(null);
+  const [selectedFlowNode, setSelectedFlowNode] = useState(null);
+  const visualizeEditorRef = useRef(null);
   const [outputCode, setOutputCode] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState({ type: 'ready', message: 'Ready to polish' });
@@ -415,6 +462,124 @@ function App() {
     setDiffRightJs(temp);
     showToast('Code swapped', 'success');
   }, [diffLeftJs, diffRightJs, showToast]);
+
+  // Custom node types for React Flow
+  const nodeTypes = useMemo(() => ({
+    custom: FlowNode
+  }), []);
+
+  // Generate flow diagram from code
+  const handleGenerateFlow = useCallback(() => {
+    if (!visualizeCode.trim()) {
+      showToast('Please paste some code first', 'error');
+      return;
+    }
+
+    setVisualizeError(null);
+    setSelectedFlowNode(null);
+
+    // Parse the code
+    const { ast, error } = parseCode(visualizeCode);
+    
+    if (error) {
+      setVisualizeError(`Parse error: ${error}`);
+      setFlowNodes([]);
+      setFlowEdges([]);
+      setFlowStats(null);
+      showToast('Failed to parse code', 'error');
+      return;
+    }
+
+    // Extract control flow
+    const controlFlowNodes = extractControlFlow(ast, visualizeCode);
+    
+    if (controlFlowNodes.length === 0) {
+      setVisualizeError('No control flow structures found in the code');
+      setFlowNodes([]);
+      setFlowEdges([]);
+      setFlowStats(null);
+      showToast('No flow structures found', 'error');
+      return;
+    }
+
+    // Generate React Flow diagram
+    const { nodes, edges } = generateFlowDiagram(controlFlowNodes);
+    
+    setFlowNodes(nodes);
+    setFlowEdges(edges);
+    setFlowStats(getFlowStats(controlFlowNodes));
+    showToast(`Flow diagram generated with ${nodes.length} nodes`, 'success');
+  }, [visualizeCode, showToast, setFlowNodes, setFlowEdges]);
+
+  // Handle node click in flow diagram (click-to-code)
+  const handleFlowNodeClick = useCallback((event, node) => {
+    setSelectedFlowNode(node);
+    
+    // Highlight the corresponding code in the editor
+    if (visualizeEditorRef.current && monacoRef.current && node.data.range) {
+      const editor = visualizeEditorRef.current;
+      const monaco = monacoRef.current;
+      const [start, end] = node.data.range;
+      
+      // Convert character positions to line/column
+      const model = editor.getModel();
+      if (model) {
+        const startPos = model.getPositionAt(start);
+        const endPos = model.getPositionAt(end);
+        
+        // Create selection range
+        const range = new monaco.Range(
+          startPos.lineNumber,
+          startPos.column,
+          endPos.lineNumber,
+          endPos.column
+        );
+        
+        // Set selection and reveal
+        editor.setSelection(range);
+        editor.revealRangeInCenter(range);
+        
+        // Add temporary highlight decoration
+        const decorations = editor.deltaDecorations([], [{
+          range,
+          options: {
+            className: 'flow-highlight',
+            isWholeLine: false,
+            overviewRuler: {
+              color: '#00d4aa',
+              position: monaco.editor.OverviewRulerLane.Full
+            }
+          }
+        }]);
+        
+        // Remove decoration after 2 seconds
+        setTimeout(() => {
+          editor.deltaDecorations(decorations, []);
+        }, 2000);
+      }
+    }
+  }, []);
+
+  // Load sample for visualization
+  const handleLoadVisualizeSample = useCallback(() => {
+    setVisualizeCode(SAMPLE_VISUALIZE_CODE);
+    setFlowNodes([]);
+    setFlowEdges([]);
+    setFlowStats(null);
+    setVisualizeError(null);
+    setSelectedFlowNode(null);
+    showToast('Sample code loaded', 'success');
+  }, [showToast, setFlowNodes, setFlowEdges]);
+
+  // Clear visualization
+  const handleClearVisualize = useCallback(() => {
+    setVisualizeCode('');
+    setFlowNodes([]);
+    setFlowEdges([]);
+    setFlowStats(null);
+    setVisualizeError(null);
+    setSelectedFlowNode(null);
+  }, [setFlowNodes, setFlowEdges]);
 
   // Download both JS diff files
   const handleDownloadJsDiff = useCallback(() => {
@@ -683,6 +848,8 @@ function App() {
     setJsSubMode(newSubMode);
     if (newSubMode === 'diff') {
       setStatus({ type: 'ready', message: 'Ready to compare' });
+    } else if (newSubMode === 'visualize') {
+      setStatus({ type: 'ready', message: 'Ready to visualize' });
     } else {
       setStatus({ type: 'ready', message: 'Ready to polish' });
     }
@@ -889,6 +1056,13 @@ function App() {
               >
                 ⚖️ Compare
               </button>
+              <button
+                className={`sub-mode-btn ${jsSubMode === 'visualize' ? 'active' : ''}`}
+                onClick={() => handleJsSubModeToggle('visualize')}
+                title="Visualize code flow"
+              >
+                🔀 Visualize
+              </button>
             </div>
           )}
         </div>
@@ -935,6 +1109,24 @@ function App() {
                 </>
               )}
             </button>
+          ) : mode === 'javascript' && jsSubMode === 'visualize' ? (
+            <button 
+              className="polish-btn visualize-btn" 
+              onClick={handleGenerateFlow}
+              disabled={isProcessing || !visualizeCode.trim()}
+            >
+              {isProcessing ? (
+                <>
+                  <div className="spinner" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <span className="icon">🔀</span>
+                  Generate Flow
+                </>
+              )}
+            </button>
           ) : (
             <button 
               className="polish-btn" 
@@ -959,7 +1151,192 @@ function App() {
 
       {/* Main Content */}
       <main className="main-content">
-        {mode === 'javascript' && jsSubMode === 'diff' ? (
+        {mode === 'javascript' && jsSubMode === 'visualize' ? (
+          /* JavaScript Visualize View */
+          <div className="visualize-layout">
+            {/* Code Editor Panel */}
+            <section className="visualize-editor-panel">
+              <div className="panel-header">
+                <div className="panel-title">
+                  <span className="dot input" />
+                  Code to Visualize
+                </div>
+                <div className="panel-actions">
+                  <button className="panel-btn" onClick={handleLoadVisualizeSample}>
+                    📋 Load Sample
+                  </button>
+                  <button className="panel-btn" onClick={handleClearVisualize}>
+                    🗑️ Clear
+                  </button>
+                </div>
+              </div>
+              <div className="editor-container">
+                <Editor
+                  key="visualize-input"
+                  height="100%"
+                  language="javascript"
+                  value={visualizeCode}
+                  onChange={(value) => setVisualizeCode(value || '')}
+                  onMount={(editor, monaco) => {
+                    monacoRef.current = monaco;
+                    visualizeEditorRef.current = editor;
+                    monaco.editor.defineTheme('sn-dark', customTheme);
+                    monaco.editor.setTheme('sn-dark');
+                  }}
+                  theme="vs-dark"
+                  options={editorOptions}
+                />
+              </div>
+            </section>
+
+            {/* Flow Diagram Panel */}
+            <section className="visualize-flow-panel">
+              <div className="panel-header">
+                <div className="panel-title">
+                  <span className="dot output" />
+                  Flow Diagram
+                  {flowStats && (
+                    <span className="flow-stats-badge">
+                      {flowStats.total} nodes
+                    </span>
+                  )}
+                </div>
+                <div className="panel-actions">
+                  {flowStats && (
+                    <div className="flow-stats">
+                      {flowStats.functions > 0 && (
+                        <span className="flow-stat functions">{flowStats.functions} functions</span>
+                      )}
+                      {flowStats.conditions > 0 && (
+                        <span className="flow-stat conditions">{flowStats.conditions} conditions</span>
+                      )}
+                      {flowStats.loops > 0 && (
+                        <span className="flow-stat loops">{flowStats.loops} loops</span>
+                      )}
+                      {flowStats.servicenowCalls > 0 && (
+                        <span className="flow-stat servicenow">{flowStats.servicenowCalls} SN calls</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="flow-container">
+                {visualizeError ? (
+                  <div className="empty-state error-state">
+                    <div className="icon">⚠️</div>
+                    <h3>Error</h3>
+                    <p>{visualizeError}</p>
+                  </div>
+                ) : flowNodes.length > 0 ? (
+                  <ReactFlow
+                    nodes={flowNodes}
+                    edges={flowEdges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    onNodeClick={handleFlowNodeClick}
+                    nodeTypes={nodeTypes}
+                    fitView
+                    fitViewOptions={{ padding: 0.2 }}
+                    minZoom={0.1}
+                    maxZoom={2}
+                    nodesConnectable={false}
+                    nodesDraggable={true}
+                    elementsSelectable={true}
+                    defaultEdgeOptions={{
+                      type: 'smoothstep',
+                      animated: false
+                    }}
+                  >
+                    <Background color="#2a2a42" gap={20} />
+                    <Controls 
+                      showZoom={true}
+                      showFitView={true}
+                      showInteractive={false}
+                    />
+                    <MiniMap
+                      nodeColor={(node) => node.data?.style?.borderColor || '#4a4a6a'}
+                      maskColor="rgba(13, 13, 20, 0.8)"
+                      style={{ background: '#12121c' }}
+                    />
+                    {/* Legend Panel */}
+                    <div className="flow-legend">
+                      <div className="flow-legend-section">
+                        <div className="flow-legend-title">Nodes</div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-color" style={{ background: '#7c3aed' }}></span>
+                          <span>Function</span>
+                        </div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-color" style={{ background: '#f59e0b' }}></span>
+                          <span>Condition</span>
+                        </div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-color" style={{ background: '#06b6d4' }}></span>
+                          <span>Loop</span>
+                        </div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-color" style={{ background: '#00d4aa' }}></span>
+                          <span>ServiceNow</span>
+                        </div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-color" style={{ background: '#3b82f6' }}></span>
+                          <span>Try</span>
+                        </div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-color" style={{ background: '#ef4444' }}></span>
+                          <span>Catch/Throw</span>
+                        </div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-color" style={{ background: '#22c55e' }}></span>
+                          <span>Return</span>
+                        </div>
+                      </div>
+                      <div className="flow-legend-section">
+                        <div className="flow-legend-title">Edges</div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-line solid"></span>
+                          <span>Flow</span>
+                        </div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-line solid green"></span>
+                          <span>True path</span>
+                        </div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-line solid red"></span>
+                          <span>False path</span>
+                        </div>
+                        <div className="flow-legend-item">
+                          <span className="flow-legend-line dashed"></span>
+                          <span>Exception</span>
+                        </div>
+                      </div>
+                    </div>
+                  </ReactFlow>
+                ) : (
+                  <div className="empty-state">
+                    <div className="icon">🔀</div>
+                    <h3>No flow diagram yet</h3>
+                    <p>Paste your code on the left and click "Generate Flow" to visualize the control flow.</p>
+                  </div>
+                )}
+              </div>
+              
+              {/* Selected Node Info */}
+              {selectedFlowNode && (
+                <div className="selected-node-info">
+                  <div className="selected-node-header">
+                    <span className="selected-node-icon">{selectedFlowNode.data.icon}</span>
+                    <span className="selected-node-type">{selectedFlowNode.data.nodeType}</span>
+                  </div>
+                  <div className="selected-node-label">{selectedFlowNode.data.fullLabel}</div>
+                  {selectedFlowNode.data.snippet && (
+                    <pre className="selected-node-snippet">{selectedFlowNode.data.snippet}</pre>
+                  )}
+                </div>
+              )}
+            </section>
+          </div>
+        ) : mode === 'javascript' && jsSubMode === 'diff' ? (
           /* JavaScript Diff View */
           <div className="js-diff-layout">
             {/* Panel Headers Row */}
@@ -1463,13 +1840,25 @@ function App() {
             <span className={`status-dot ${status.type}`} />
             <span>{status.message}</span>
           </div>
-          {metrics && (
+          {/* Show before→after metrics only in Polish/Compare modes (where transformation happens) */}
+          {metrics && jsSubMode !== 'visualize' && (
             <>
               <div className="status-item">
                 Lines: {metrics.originalLines} → {metrics.formattedLines}
               </div>
               <div className="status-item">
                 Chars: {metrics.originalChars} → {metrics.formattedChars}
+              </div>
+            </>
+          )}
+          {/* Show simple stats in Visualize mode */}
+          {jsSubMode === 'visualize' && visualizeCode && (
+            <>
+              <div className="status-item">
+                Lines: {visualizeCode.split('\n').length}
+              </div>
+              <div className="status-item">
+                Chars: {visualizeCode.length}
               </div>
             </>
           )}
@@ -1480,7 +1869,7 @@ function App() {
         <div className="status-item">
           {mode === 'json' 
             ? (jsonSubMode === 'diff' ? 'JSON Diff' : 'JSON Format')
-            : (jsSubMode === 'diff' ? 'Compare & Polish' : 'JavaScript / ServiceNow')
+            : (jsSubMode === 'visualize' ? 'Flow Visualization' : (jsSubMode === 'diff' ? 'Compare & Polish' : 'JavaScript / ServiceNow'))
           }
         </div>
       </footer>
