@@ -905,10 +905,12 @@ function App() {
       primaryActionRef.current = handleCompareJson;
     } else if (mode === 'javascript' && jsSubMode === 'diff') {
       primaryActionRef.current = handlePolishDiffRight;
+    } else if (mode === 'javascript' && jsSubMode === 'visualize') {
+      primaryActionRef.current = handleGenerateFlow;
     } else {
       primaryActionRef.current = handlePolish;
     }
-  }, [handlePolish, handleCompareJson, handlePolishDiffRight, mode, jsonSubMode, jsSubMode]);
+  }, [handlePolish, handleCompareJson, handlePolishDiffRight, handleGenerateFlow, mode, jsonSubMode, jsSubMode]);
 
   // Keyboard shortcut handler
   useEffect(() => {
@@ -920,6 +922,8 @@ function App() {
           handleCompareJson();
         } else if (mode === 'javascript' && jsSubMode === 'diff') {
           handlePolishDiffRight();
+        } else if (mode === 'javascript' && jsSubMode === 'visualize') {
+          handleGenerateFlow();
         } else {
           handlePolish();
         }
@@ -932,7 +936,7 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handlePolish, handleCompareJson, handlePolishDiffRight, mode, jsonSubMode, jsSubMode]);
+  }, [handlePolish, handleCompareJson, handlePolishDiffRight, handleGenerateFlow, mode, jsonSubMode, jsSubMode]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -1321,11 +1325,10 @@ function App() {
                 )}
               </div>
               
-              {/* Selected Node Info */}
+              {/* Selected Node Info Panel */}
               {selectedFlowNode && (
                 <div className="selected-node-info">
                   <div className="selected-node-header">
-                    <span className="selected-node-icon">{selectedFlowNode.data.icon}</span>
                     <span className="selected-node-type">{selectedFlowNode.data.nodeType}</span>
                   </div>
                   <div className="selected-node-label">{selectedFlowNode.data.fullLabel}</div>

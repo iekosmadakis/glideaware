@@ -1451,11 +1451,6 @@ body {
   justify-content: center;
 }
 
-.flow-node-icon {
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
 .flow-node-label {
   white-space: nowrap;
   overflow: hidden;
@@ -1493,7 +1488,7 @@ body {
   bottom: 17px;
   left: 70px;
   max-width: 480px;
-  height: 114px;
+  height: 115px;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -1512,10 +1507,6 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 6px;
-}
-
-.selected-node-icon {
-  display: none;
 }
 
 .selected-node-type {

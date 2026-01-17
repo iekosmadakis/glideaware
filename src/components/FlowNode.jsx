@@ -8,8 +8,12 @@ import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 
 /**
- * Custom node component for the flow diagram
+ * Custom node component for the flow diagram.
+ * Nodes are color-coded by type with appropriate handles for connections.
+ * 
  * @param {Object} props - Node properties from React Flow
+ * @param {Object} props.data - Node data including label, style, and metadata
+ * @param {boolean} props.selected - Whether the node is currently selected
  */
 function FlowNode({ data, selected }) {
   const { label, nodeType, style, subtype } = data;
@@ -42,7 +46,7 @@ function FlowNode({ data, selected }) {
         )}
       </div>
 
-      {/* Output handle (bottom) - not for terminators */}
+      {/* Output handle (bottom) - not shown for terminator nodes */}
       {!isTerminator && (
         <Handle
           type="source"
@@ -52,7 +56,7 @@ function FlowNode({ data, selected }) {
         />
       )}
 
-      {/* Side handles for conditions */}
+      {/* Side handles for condition nodes (true/false branches) */}
       {isCondition && (
         <>
           <Handle

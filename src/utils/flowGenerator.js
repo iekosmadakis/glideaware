@@ -23,117 +23,99 @@ const LAYOUT = {
 
 /**
  * Node type to style mapping
- * Minimal design - no icons, color-coded by type
+ * Minimal design - color-coded by type
  */
 const NODE_STYLES = {
   function: {
     background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
     borderColor: '#7c3aed',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   condition: {
     background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
     borderColor: '#f59e0b',
     color: '#ffffff',
-    icon: '',
     shape: 'diamond'
   },
   loop: {
     background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
     borderColor: '#06b6d4',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   switch: {
     background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
     borderColor: '#8b5cf6',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   case: {
     background: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)',
     borderColor: '#a78bfa',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   try: {
     background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
     borderColor: '#3b82f6',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   catch: {
     background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
     borderColor: '#ef4444',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   finally: {
     background: 'linear-gradient(135deg, #64748b 0%, #475569 100%)',
     borderColor: '#64748b',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   return: {
     background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
     borderColor: '#22c55e',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   throw: {
     background: 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
     borderColor: '#ef4444',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   break: {
     background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
     borderColor: '#f97316',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   continue: {
     background: 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)',
     borderColor: '#14b8a6',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   servicenow: {
     background: 'linear-gradient(135deg, #00d4aa 0%, #059669 100%)',
     borderColor: '#00d4aa',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   'servicenow-call': {
     background: 'linear-gradient(135deg, #00d4aa 0%, #10b981 100%)',
     borderColor: '#00d4aa',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   call: {
     background: 'linear-gradient(135deg, #64748b 0%, #475569 100%)',
     borderColor: '#64748b',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   assignment: {
     background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
     borderColor: '#6366f1',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   },
   branch: {
     background: 'transparent',
     borderColor: 'transparent',
-    color: '#9898b0',
-    icon: ''
+    color: '#9898b0'
   },
   default: {
     background: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
     borderColor: '#374151',
-    color: '#ffffff',
-    icon: ''
+    color: '#ffffff'
   }
 };
 
@@ -322,14 +304,13 @@ function generateReactFlowNodes(flowNodes, positions) {
 
       return {
         id: node.id,
-        type: 'custom', // We'll use custom node component
+        type: 'custom',
         position,
         data: {
           label: displayLabel,
           fullLabel: node.label,
           nodeType: node.type,
           subtype: node.subtype,
-          icon: style.icon,
           snippet: node.snippet,
           range: node.range,
           loc: node.loc,
