@@ -48,7 +48,7 @@ const SAMPLE_JS_CODE = `// Business Rule: Auto-assign incidents
     }
     ;
     
-    gs.info('Auto-assignment complete');;    
+    gs.infoo('Auto-assignment complete');;    
 })(current, previous);`;
 
 // Sample JSON for demonstration
