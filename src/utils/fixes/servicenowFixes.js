@@ -1465,6 +1465,8 @@ const GS_TYPOS = [
   [/gs\.olg\(/g, 'gs.log('],
   [/gs\.inof\(/g, 'gs.info('],
   [/gs\.inf\(/g, 'gs.info('],
+  [/gs\.infoo\(/g, 'gs.info('],
+  [/gs\.inffo\(/g, 'gs.info('],
   [/gs\.debgu\(/g, 'gs.debug('],
   [/gs\.deubg\(/g, 'gs.debug('],
   [/gs\.erorr\(/g, 'gs.error('],

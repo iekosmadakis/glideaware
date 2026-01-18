@@ -25,16 +25,16 @@ const CONFIG = {
   maxEditDistance: 2,
   
   // Minimum similarity score for consideration
-  minSimilarity: 0.75,
+  minSimilarity: 0.70,
   
   // Minimum margin between best and second-best match
   minMargin: 0.08,
   
-  // Confidence thresholds
+  // Confidence thresholds (adjusted to handle short method names like 'info')
   confidenceThresholds: {
-    high: { maxDistance: 1, minSimilarity: 0.90 },    // Auto-fix silently
-    medium: { maxDistance: 2, minSimilarity: 0.85 },  // Auto-fix with note
-    low: { maxDistance: 2, minSimilarity: 0.75 },     // Suggest only (warning)
+    high: { maxDistance: 1, minSimilarity: 0.85 },    // Auto-fix silently
+    medium: { maxDistance: 2, minSimilarity: 0.75 },  // Auto-fix with note
+    low: { maxDistance: 2, minSimilarity: 0.65 },     // Suggest only (warning)
   },
 };
 
