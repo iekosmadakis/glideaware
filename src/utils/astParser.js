@@ -11,344 +11,641 @@ import * as acorn from 'acorn';
 // =============================================================================
 
 /**
- * ServiceNow-specific API classes that should be highlighted in visualizations
- * Validated against ServiceNow Zurich API Reference documentation
- * @see https://www.servicenow.com/docs/bundle/zurich-api-reference
+ * ServiceNow-specific API classes for visualization highlighting
+ * @see https://www.servicenow.com/docs/r/api-reference/api-reference.html
  */
 const SERVICENOW_CLASSES = [
-  // ==========================================================================
-  // CORE DATABASE CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideRecord',           // Global & Scoped - Primary database access
-  'GlideRecordSecure',     // Global & Scoped - GlideRecord with ACL enforcement
-  'GlideAggregate',        // Global & Scoped - Aggregate queries (COUNT, SUM, etc.)
-  'GlideQuery',            // Global & Scoped - Fluent query builder
-  'GlideQueryCondition',   // Global & Scoped - Query condition builder
+  // Core database classes
+  'GlideRecord',
+  'GlideRecordSecure',
+  'GlideAggregate',
+  'GlideQuery',
+  'GlideQueryCondition',
   
-  // ==========================================================================
-  // DATE/TIME CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideDateTime',         // Global & Scoped - Date and time operations
-  'GlideDate',             // Global & Scoped - Date operations
-  'GlideTime',             // Scoped - Time operations
-  'GlideDuration',         // Scoped - Duration calculations
-  'GlideSchedule',         // Scoped - Schedule operations
+  // Date/time classes
+  'GlideDateTime',
+  'GlideDate',
+  'GlideTime',
+  'GlideDuration',
+  'GlideSchedule',
+  'GlideCalendarDateTime',
   
-  // ==========================================================================
-  // SYSTEM CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideSystem',           // Global & Scoped - System utilities (gs object)
-  'GlideSysAttachment',    // Global & Scoped - Attachment management
-  'GlideLocale',           // Scoped - Locale/language utilities
+  // System classes
+  'GlideSystem',
+  'GlideSysAttachment',
+  'GlideSysAttachmentInputStream',
+  'GlideLocale',
+  'GlideApplicationProperty',
   
-  // ==========================================================================
-  // USER/SESSION CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideUser',             // Global & Scoped - Current user information
-  'GlideSession',          // Global & Scoped - Session information
-  'GlideImpersonate',      // Global - User impersonation
+  // User/session classes
+  'GlideUser',
+  'GlideSession',
+  'GlideImpersonate',
   
-  // ==========================================================================
-  // ELEMENT CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideElement',          // Global & Scoped - Field/element operations
-  'GlideElementDescriptor', // Scoped & Global - Element metadata
+  // Element classes
+  'GlideElement',
+  'GlideElementDescriptor',
   
-  // ==========================================================================
-  // CLIENT-SIDE CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideAjax',             // Client - Async server calls
-  'GlideForm',             // Client - Form manipulation (g_form)
-  'GlideList2',            // Client - List manipulation
-  'GlideModal',            // Client - Modal dialogs
-  'GlideDialogWindow',     // Client - Dialog windows
+  // Client-side classes
+  'GlideAjax',
+  'GlideForm',
+  'GlideList2',
+  'GlideModal',
+  'GlideDialogWindow',
+  'GlideDialogForm',
   
-  // ==========================================================================
-  // SCRIPTING/EVALUATION CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideScopedEvaluator',  // Global & Scoped - Script evaluation
-  'GlideFilter',           // Scoped & Global - Filter operations
+  // Scripting/evaluation classes
+  'GlideScopedEvaluator',
+  'GlideFilter',
+  'GlideScriptedExtensionPoint',
   
-  // ==========================================================================
-  // PLUGIN CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlidePluginManager',    // Scoped - Plugin management
+  // Plugin/email classes
+  'GlidePluginManager',
+  'GlideEmailOutbound',
   
-  // ==========================================================================
-  // EMAIL CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideEmailOutbound',    // Scoped - Outbound email
+  // HTTP/REST/SOAP classes
+  'GlideHTTPRequest',
+  'GlideHTTPResponse',
+  'RESTMessageV2',
+  'RESTResponseV2',
+  'SOAPMessageV2',
+  'SOAPResponseV2',
   
-  // ==========================================================================
-  // HTTP/REST/SOAP CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideHTTPRequest',      // Global - HTTP requests
-  'GlideHTTPResponse',     // Global - HTTP responses
-  'RESTMessageV2',         // Scoped & Global (via sn_ws) - REST outbound
-  'RESTResponseV2',        // Scoped & Global - REST response handling
-  'SOAPMessageV2',         // Scoped & Global (via sn_ws) - SOAP outbound
-  'SOAPResponseV2',        // Scoped & Global - SOAP response handling
+  // Scoped API namespaces
+  'sn_ws',
+  'sn_fd',
+  'sn_cc',
+  'sn_sc',
+  'sn_hr',
+  'sn_cmdb',
+  'sn_connect',
+  'sn_discovery',
+  'sn_impex',
+  'sn_km',
+  'sn_notification',
   
-  // ==========================================================================
-  // SCOPED API NAMESPACES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'sn_ws',                 // Web Services namespace
-  'sn_fd',                 // Flow Designer namespace
+  // Flow Designer
+  'FlowAPI',
+  'FlowScriptAPI',
   
-  // ==========================================================================
-  // FLOW DESIGNER (Validated - Zurich API Reference)
-  // ==========================================================================
-  'FlowAPI',               // Scoped & Global - Flow Designer API
+  // XML classes
+  'XMLDocument2',
+  'XMLNode',
+  'XMLNodeIterator',
+  'GlideXMLUtil',
   
-  // ==========================================================================
-  // XML CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideXMLUtil',          // Scoped & Global - XML utilities
+  // Utility classes
+  'GlideRecordUtil',
+  'GlideStringUtil',
+  'TableUtils',
+  'ArrayUtil',
+  'JSUtil',
+  'GlideExcelParser',
+  'GlideDigest',
+  'GlideEncrypter',
+  'GlideSecureRandom',
+  'GlideSecureRandomUtil',
+  'GlideCertificateEncryption',
+  'GlideTableHierarchy',
+  'GlideDBFunctionBuilder',
+  'GlideJsonPath',
+  'GlideScriptableInputStream',
+  'GlideMultiRecurrence',
   
-  // ==========================================================================
-  // UTILITY CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideRecordUtil',       // Global - GlideRecord utilities
-  'TableUtils',            // Global - Table utilities
-  'ArrayUtil',             // Global - Array utilities
-  'GlideExcelParser',      // Scoped & Global - Excel parsing
-  'GlideDigest',           // Scoped - Cryptographic digest
+  // Import/transform classes
+  'GlideImportLog',
+  'GlideImportSetRun',
+  'GlideImportSetTransformer',
   
-  // ==========================================================================
-  // IMPORT/TRANSFORM CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideImportSetRun',     // Scoped & Global - Import set operations
-  'GlideImportSetTransformer', // Scoped & Global - Transform operations
+  // CMDB/workflow classes
+  'CMDBUtil',
+  'Workflow',
+  'WorkflowScheduler',
   
-  // ==========================================================================
-  // CMDB CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'CMDBUtil',              // Global - CMDB utilities
+  // OAuth classes
+  'GlideOAuthClient',
+  'GlideOAuthClientRequest',
+  'GlideOAuthClientResponse',
+  'GlideOAuthToken',
   
-  // ==========================================================================
-  // WORKFLOW CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'WorkflowScheduler',     // Global - Workflow scheduling
+  // Service Portal/script include classes
+  'GlideSPScriptable',
+  'AbstractAjaxProcessor',
   
-  // ==========================================================================
-  // OAUTH CLASSES (Validated - Zurich API Reference)
-  // ==========================================================================
-  'GlideOAuthClient',      // Scoped & Global - OAuth client
-  'GlideOAuthClientRequest', // Scoped & Global - OAuth request
-  'GlideOAuthClientResponse', // Scoped & Global - OAuth response
-  'GlideOAuthToken',       // Scoped & Global - OAuth token
+  // Update/deployment classes
+  'GlideUpdateManager',
+  'GlideUpdateSet',
+  'GlideAppLoader',
   
-  // ==========================================================================
-  // CLIENT-SIDE OBJECTS (Validated - Common usage)
-  // ==========================================================================
-  'g_form',                // Client - Form object reference
-  'g_list',                // Client - List object reference
-  'g_user',                // Client - User object reference
+  // Servlet/currency/event classes
+  'GlideScriptedProcessor',
+  'GlideServletRequest',
+  'GlideServletResponse',
+  'GlideCurrencyConfig',
+  'GlideEventManager',
   
-  // ==========================================================================
-  // BUSINESS RULE OBJECTS (Validated - Common usage)
-  // ==========================================================================
-  'current',               // Server - Current record in Business Rules
-  'previous',              // Server - Previous record in Business Rules
-  'action'                 // Global & Scoped - UI Action context
+  // Client-side global objects
+  'g_form',
+  'g_list',
+  'g_user',
+  'g_scratchpad',
+  'g_navigation',
+  'g_modal',
+  'spUtil',
+  'spModal',
+  
+  // Server-side global objects
+  'gs',
+  'current',
+  'previous',
+  'action',
+  'email',
+  'event',
+  'producer',
+  'request',
+  'response',
+  'workflow',
+  'activity',
+  'context',
+  'RP',
+  '$sp',
+  'data',
+  'input',
+  'options',
+  'g_processor'
 ];
 
 /**
- * ServiceNow GlideRecord and API methods categorized by operation type
- * Validated against ServiceNow Zurich API Reference
+ * GlideRecord and API methods categorized by operation type
  * Categories: database, loop, filter, read, write, config
- * @see https://www.servicenow.com/docs/bundle/zurich-api-reference
+ * @see https://www.servicenow.com/docs/r/api-reference/api-reference.html
  */
 const GLIDE_RECORD_METHODS = {
-  // ==========================================================================
-  // DATABASE OPERATIONS (Validated)
-  // ==========================================================================
-  query: 'database',           // Execute query
-  get: 'database',             // Get single record by sys_id or field
-  insert: 'database',          // Insert new record
-  update: 'database',          // Update current record
-  updateMultiple: 'database',  // Update multiple records
-  deleteRecord: 'database',    // Delete current record
-  deleteMultiple: 'database',  // Delete multiple records
-  initialize: 'database',      // Initialize for insert
-  newRecord: 'database',       // Create new record object
+  // Database operations
+  query: 'database',
+  get: 'database',
+  insert: 'database',
+  update: 'database',
+  updateMultiple: 'database',
+  deleteRecord: 'database',
+  deleteMultiple: 'database',
+  initialize: 'database',
+  newRecord: 'database',
   
-  // ==========================================================================
-  // ITERATION METHODS (Validated)
-  // ==========================================================================
-  next: 'loop',                // Move to next record
-  hasNext: 'loop',             // Check if more records exist
+  // Iteration methods
+  next: 'loop',
+  hasNext: 'loop',
+  _next: 'loop',
+  _query: 'loop',
   
-  // ==========================================================================
-  // QUERY BUILDING / FILTERS (Validated)
-  // ==========================================================================
-  addQuery: 'filter',          // Add query condition
-  addEncodedQuery: 'filter',   // Add encoded query string
-  addNullQuery: 'filter',      // Add null check condition
-  addNotNullQuery: 'filter',   // Add not null condition
-  addJoinQuery: 'filter',      // Add join query
-  addActiveQuery: 'filter',    // Add active=true condition
-  addOrCondition: 'filter',    // Add OR condition
-  setLimit: 'filter',          // Limit result count
-  orderBy: 'filter',           // Order by field ascending
-  orderByDesc: 'filter',       // Order by field descending
-  chooseWindow: 'filter',      // Set result window
+  // Query building / filters
+  addQuery: 'filter',
+  addEncodedQuery: 'filter',
+  addNullQuery: 'filter',
+  addNotNullQuery: 'filter',
+  addJoinQuery: 'filter',
+  addActiveQuery: 'filter',
+  addInactiveQuery: 'filter',
+  addOrCondition: 'filter',
+  addDomainQuery: 'filter',
+  addFunction: 'filter',
+  setCategory: 'filter',
+  setLimit: 'filter',
+  setEncodedQuery: 'filter',
+  orderBy: 'filter',
+  orderByDesc: 'filter',
+  addOrderBy: 'filter',
+  chooseWindow: 'filter',
   
-  // ==========================================================================
-  // READ OPERATIONS (Validated)
-  // ==========================================================================
-  getValue: 'read',            // Get field value
-  getDisplayValue: 'read',     // Get display value
-  getElement: 'read',          // Get GlideElement
-  getRowCount: 'read',         // Get total row count
-  getTableName: 'read',        // Get table name
-  getRecordClassName: 'read',  // Get record class name
-  getClassDisplayValue: 'read', // Get class display value
-  getEncodedQuery: 'read',     // Get encoded query string
-  getUniqueValue: 'read',      // Get sys_id
-  getLink: 'read',             // Get record link
-  getLabel: 'read',            // Get field label
-  getAttribute: 'read',        // Get attribute value
-  getED: 'read',               // Get element descriptor
-  getLastErrorMessage: 'read', // Get last error
+  // Read operations
+  getValue: 'read',
+  getDisplayValue: 'read',
+  getElement: 'read',
+  getRowCount: 'read',
+  getTableName: 'read',
+  getRecordClassName: 'read',
+  getClassDisplayValue: 'read',
+  getEncodedQuery: 'read',
+  getUniqueValue: 'read',
+  getLink: 'read',
+  getLabel: 'read',
+  getAttribute: 'read',
+  getED: 'read',
+  getLastErrorMessage: 'read',
+  getBooleanValue: 'read',
+  getFields: 'read',
+  getElements: 'read',
+  getReference: 'read',
+  getReferenceTable: 'read',
+  getAttachments: 'read',
   
-  // ==========================================================================
-  // WRITE OPERATIONS (Validated)
-  // ==========================================================================
-  setValue: 'write',           // Set field value
-  setDisplayValue: 'write',    // Set display value
-  applyTemplate: 'write',      // Apply template to record
-  autoSysFields: 'write',      // Enable/disable auto sys fields
+  // Write operations
+  setValue: 'write',
+  setDisplayValue: 'write',
+  applyTemplate: 'write',
+  autoSysFields: 'write',
+  setNewGuidValue: 'write',
+  setLocation: 'write',
   
-  // ==========================================================================
-  // CONFIGURATION METHODS (Validated)
-  // ==========================================================================
-  setWorkflow: 'config',       // Enable/disable workflows
-  setAbortAction: 'config',    // Abort current action
-  setForceUpdate: 'config',    // Force update even if no changes
-  setQueryReferences: 'config', // Set reference field handling
+  // Configuration methods
+  setWorkflow: 'config',
+  setAbortAction: 'config',
+  setForceUpdate: 'config',
+  setQueryReferences: 'config',
+  operation: 'config',
   
-  // ==========================================================================
-  // VALIDATION METHODS (Validated)
-  // ==========================================================================
-  isValid: 'read',             // Check if record is valid
-  isValidField: 'read',        // Check if field is valid
-  isValidRecord: 'read',       // Check if record exists
-  isNewRecord: 'read',         // Check if record is new
-  isActionAborted: 'read',     // Check if action was aborted
-  canRead: 'read',             // Check read permission
-  canWrite: 'read',            // Check write permission
-  canCreate: 'read',           // Check create permission
-  canDelete: 'read',           // Check delete permission
+  // Validation/change tracking methods
+  isValid: 'read',
+  isValidField: 'read',
+  isValidRecord: 'read',
+  isNewRecord: 'read',
+  isActionAborted: 'read',
+  canRead: 'read',
+  canWrite: 'read',
+  canCreate: 'read',
+  canDelete: 'read',
+  changes: 'read',
+  changesTo: 'read',
+  changesFrom: 'read',
+  nil: 'read',
   
-  // ==========================================================================
-  // CHANGE TRACKING METHODS (Validated)
-  // ==========================================================================
-  changes: 'read',             // Check if any field changed
-  changesTo: 'read',           // Check if field changed to value
-  changesFrom: 'read',         // Check if field changed from value
-  nil: 'read',                 // Check if field is nil/empty
+  // GlideAggregate specific
+  addAggregate: 'filter',
+  groupBy: 'filter',
+  getAggregate: 'read',
+  addHaving: 'filter',
+  addTrend: 'filter',
+  getQuery: 'read',
   
-  // ==========================================================================
-  // GLIDEAGGREGATE SPECIFIC (Validated)
-  // ==========================================================================
-  addAggregate: 'filter',      // Add aggregate function
-  groupBy: 'filter',           // Group by field
-  getAggregate: 'read',        // Get aggregate result
-  addHaving: 'filter'          // Add having clause
+  // GlideQuery methods
+  select: 'database',
+  selectOne: 'database',
+  where: 'filter',
+  whereNull: 'filter',
+  whereNotNull: 'filter',
+  orWhere: 'filter',
+  limit: 'filter',
+  disableWorkflow: 'config',
+  forceUpdate: 'config',
+  toGlideRecord: 'database',
+  aggregate: 'filter',
+  avg: 'read',
+  count: 'read',
+  max: 'read',
+  min: 'read',
+  sum: 'read',
+  having: 'filter',
+  parse: 'filter',
+  withAcls: 'config',
+  getBy: 'database'
 };
 
 /**
  * GlideSystem (gs) methods commonly used in ServiceNow scripts
- * Validated against ServiceNow Zurich API Reference and community documentation
- * @see https://www.servicenow.com/docs/bundle/zurich-api-reference
+ * @see https://www.servicenow.com/docs/r/api-reference/api-reference.html
  */
 const GLIDE_SYSTEM_METHODS = [
-  // ==========================================================================
-  // LOGGING METHODS (Validated)
-  // ==========================================================================
-  'log',                   // Log message
-  'info',                  // Info level log
-  'warn',                  // Warning level log
-  'error',                 // Error level log
-  'debug',                 // Debug level log
+  // Logging methods
+  'log',
+  'info',
+  'warn',
+  'error',
+  'debug',
+  'print',
+  'logError',
+  'logWarning',
   
-  // ==========================================================================
-  // USER CONTEXT METHODS (Validated)
-  // ==========================================================================
-  'getUserID',             // Get current user sys_id
-  'getUserName',           // Get current user name
-  'getUser',               // Get GlideUser object
-  'getSession',            // Get GlideSession object
-  'hasRole',               // Check if user has role
-  'hasRoleInGroup',        // Check role in group
-  'isLoggedIn',            // Check if user is logged in
-  'isInteractive',         // Check if interactive session
+  // User context methods
+  'getUserID',
+  'getUserName',
+  'getUserDisplayName',
+  'getUser',
+  'getSession',
+  'getSessionID',
+  'getSessionToken',
+  'hasRole',
+  'hasRoleInGroup',
+  'hasRoleExactly',
+  'isLoggedIn',
+  'isInteractive',
+  'isMobile',
+  'getImpersonatingUserName',
   
-  // ==========================================================================
-  // DATE/TIME METHODS (Validated)
-  // ==========================================================================
-  'now',                   // Current date/time
-  'nowDateTime',           // Current date/time formatted
-  'daysAgo',               // Date X days ago
-  'daysAgoStart',          // Start of day X days ago
-  'daysAgoEnd',            // End of day X days ago
-  'hoursAgo',              // Date X hours ago
-  'hoursAgoStart',         // Start of hour X hours ago
-  'hoursAgoEnd',           // End of hour X hours ago
-  'minutesAgo',            // Date X minutes ago
-  'monthsAgo',             // Date X months ago
-  'monthsAgoStart',        // Start of month X months ago
-  'monthsAgoEnd',          // End of month X months ago
-  'yearsAgo',              // Date X years ago
-  'beginningOfLastMonth',  // Start of last month
-  'endOfLastMonth',        // End of last month
-  'beginningOfThisMonth',  // Start of this month
-  'endOfThisMonth',        // End of this month
-  'beginningOfThisQuarter', // Start of this quarter
-  'endOfThisQuarter',      // End of this quarter
-  'beginningOfThisYear',   // Start of this year
-  'endOfThisYear',         // End of this year
-  'beginningOfToday',      // Start of today
-  'endOfToday',            // End of today
-  'dateGenerate',          // Generate date from parts
+  // Date/time methods
+  'now',
+  'nowDateTime',
+  'nowNoTZ',
+  'daysAgo',
+  'daysAgoStart',
+  'daysAgoEnd',
+  'hoursAgo',
+  'hoursAgoStart',
+  'hoursAgoEnd',
+  'minutesAgo',
+  'minutesAgoStart',
+  'minutesAgoEnd',
+  'monthsAgo',
+  'monthsAgoStart',
+  'monthsAgoEnd',
+  'quartersAgo',
+  'quartersAgoStart',
+  'quartersAgoEnd',
+  'yearsAgo',
+  'yearsAgoStart',
+  'yearsAgoEnd',
+  'beginningOfLastMonth',
+  'beginningOfLastWeek',
+  'beginningOfLastYear',
+  'beginningOfNextMonth',
+  'beginningOfNextWeek',
+  'beginningOfNextYear',
+  'beginningOfThisMonth',
+  'beginningOfThisQuarter',
+  'beginningOfThisWeek',
+  'beginningOfThisYear',
+  'beginningOfToday',
+  'endOfLastMonth',
+  'endOfLastWeek',
+  'endOfLastYear',
+  'endOfNextMonth',
+  'endOfNextWeek',
+  'endOfNextYear',
+  'endOfThisMonth',
+  'endOfThisQuarter',
+  'endOfThisWeek',
+  'endOfThisYear',
+  'endOfToday',
+  'dateGenerate',
+  'dateDiff',
   
-  // ==========================================================================
-  // PROPERTIES METHODS (Validated)
-  // ==========================================================================
-  'getProperty',           // Get system property
+  // Properties/messages methods
+  'getProperty',
+  'setProperty',
+  'getPreference',
+  'setPreference',
+  'getEscapedProperty',
+  'cacheFlush',
+  'getMessage',
+  'addInfoMessage',
+  'addErrorMessage',
+  'flushMessages',
+  'getErrorMessages',
+  'getInfoMessages',
   
-  // ==========================================================================
-  // MESSAGE METHODS (Validated)
-  // ==========================================================================
-  'getMessage',            // Get translated message
-  'addInfoMessage',        // Add info message to page
-  'addErrorMessage',       // Add error message to page
+  // Script/utility methods
+  'include',
+  'loadGlobalScripts',
+  'nil',
+  'tableExists',
+  'generateGUID',
+  'urlEncode',
+  'urlDecode',
+  'xmlToJSON',
+  'base64Encode',
+  'base64Decode',
+  'getDisplayColumn',
+  'getDisplayName',
+  'getMaxSchemaNameLength',
+  'getNewAppScopeCompanyPrefix',
+  'getNodeName',
+  'getNodeValue',
+  'getSysTimeZone',
+  'getXMLText',
+  'getXMLNodeList',
+  'sleep',
   
-  // ==========================================================================
-  // SCRIPT INCLUDE METHODS (Validated)
-  // ==========================================================================
-  'include',               // Include script
+  // Redirect/scope/event methods
+  'setRedirect',
+  'setReturn',
+  'getCurrentScopeName',
+  'getCallerScopeName',
+  'setCurrentApplicationId',
+  'eventQueue',
+  'eventQueueScheduled',
+  'workflowFlush',
   
-  // ==========================================================================
-  // UTILITY METHODS (Validated)
-  // ==========================================================================
-  'nil',                   // Check if value is nil/empty
-  'tableExists',           // Check if table exists
-  'generateGUID',          // Generate GUID
-  
-  // ==========================================================================
-  // EVENT METHODS (Validated)
-  // ==========================================================================
-  'eventQueue',            // Queue an event
-  'eventQueueScheduled',   // Queue scheduled event
-  
-  // ==========================================================================
-  // MISCELLANEOUS (Validated)
-  // ==========================================================================
-  'print',                 // Print output
-  'getCurrentScopeName',   // Get current application scope
-  'getDisplayValueFor'     // Get display value for reference
+  // Debug/style methods
+  'isDebugging',
+  'getTimeZoneName',
+  'getUrlOnStack',
+  'action',
+  'getStyle',
+  'getDisplayValueFor'
+];
+
+/** Client-side g_form methods */
+const G_FORM_METHODS = [
+  'getValue',
+  'setValue',
+  'getDisplayValue',
+  'clearValue',
+  'getIntValue',
+  'getBooleanValue',
+  'getDecimalValue',
+  'getActionName',
+  'setVisible',
+  'isVisible',
+  'setMandatory',
+  'isMandatory',
+  'setReadOnly',
+  'isReadOnly',
+  'setDisabled',
+  'isDisabled',
+  'setDisplay',
+  'getReference',
+  'addOption',
+  'removeOption',
+  'clearOptions',
+  'getOption',
+  'getOptionControl',
+  'showFieldMsg',
+  'hideFieldMsg',
+  'showErrorBox',
+  'hideErrorBox',
+  'addInfoMessage',
+  'addErrorMessage',
+  'clearMessages',
+  'hideAllFieldMsgs',
+  'getLabelOf',
+  'setLabelOf',
+  'addDecoration',
+  'removeDecoration',
+  'hideRelatedList',
+  'hideRelatedLists',
+  'showRelatedList',
+  'showRelatedLists',
+  'setSectionDisplay',
+  'isSectionVisible',
+  'activateTab',
+  'getTabNameForField',
+  'flash',
+  'getControl',
+  'getElement',
+  'getFormElement',
+  'getSectionNames',
+  'getSections',
+  'getTableName',
+  'getUniqueValue',
+  'hasField',
+  'isNewRecord',
+  'save',
+  'submit',
+  'enableAttachments',
+  'disableAttachments',
+  'hasAttribute',
+  'removeAttribute',
+  'addAttribute',
+  'setScope',
+  'refreshSlushbucket',
+  'isLiveUpdating',
+  'registerHandler',
+  'removeCurrentPrefix'
+];
+
+/** Client-side g_list methods */
+const G_LIST_METHODS = [
+  'addFilter',
+  'get',
+  'getByName',
+  'getChecked',
+  'getFilter',
+  'getFixedQuery',
+  'getGroupBy',
+  'getListName',
+  'getOrderBy',
+  'getParentTable',
+  'getQuery',
+  'getRelated',
+  'getRelationshipID',
+  'getTableName',
+  'getTitle',
+  'getView',
+  'isUserList',
+  'refresh',
+  'refreshWithOrderBy',
+  'setFilter',
+  'setFilterAndRefresh',
+  'setFirstRow',
+  'setGroupBy',
+  'setOrderBy',
+  'setRelated',
+  'setRows',
+  'setRowsPerPage',
+  'showHideGroups',
+  'showHideList',
+  'sort',
+  'sortDescending',
+  'toggleList',
+  'toggleListNoPref'
+];
+
+/** Client-side g_user methods */
+const G_USER_METHODS = [
+  'getClientData',
+  'getFullName',
+  'getName',
+  'getUserID',
+  'getUserName',
+  'hasRole',
+  'hasRoleExactly',
+  'hasRoleFromList'
+];
+
+/** Service Portal spUtil methods (client-side) */
+const SP_UTIL_METHODS = [
+  'addErrorMessage',
+  'addInfoMessage',
+  'addTrivialMessage',
+  'createUid',
+  'format',
+  'get',
+  'getPreference',
+  'parseAttributes',
+  'recordWatch',
+  'refresh',
+  'scrollTo',
+  'setBreadCrumb',
+  'setPreference',
+  'setSearchPage',
+  'update'
+];
+
+/** Service Portal $sp server-side methods */
+const SP_METHODS = [
+  'canReadRecord',
+  'canSeePage',
+  'getCatalogItem',
+  'getDisplayValue',
+  'getField',
+  'getFields',
+  'getFieldsObject',
+  'getForm',
+  'getKBCategoryArticles',
+  'getKBCount',
+  'getKBRecord',
+  'getKBSiblingCategories',
+  'getKBTopCategoryID',
+  'getListColumns',
+  'getMenuHREF',
+  'getMenuItems',
+  'getParameter',
+  'getPortalRecord',
+  'getRecord',
+  'getRecordDisplayValues',
+  'getRecordElements',
+  'getRecordValues',
+  'getRelatedList',
+  'getSCRecord',
+  'getStream',
+  'getValues',
+  'getWidget',
+  'getWidgetFromInstance',
+  'getWidgetParameters',
+  'getWidgetScope',
+  'logStat',
+  'mapRecordToUIAction',
+  'showCatalogPrices',
+  'translateTemplate'
+];
+
+/** Workflow API methods */
+const WORKFLOW_METHODS = [
+  'broadcastEvent',
+  'cancel',
+  'cancelContext',
+  'deleteWorkflow',
+  'fireEvent',
+  'fireEventById',
+  'getContexts',
+  'getEstimatedDeliveryTime',
+  'getEstimatedDeliveryTimeFromWFVersion',
+  'getReturnValue',
+  'getRunningFlows',
+  'getVersion',
+  'getVersionFromName',
+  'getWorkflowFromName',
+  'hasWorkflow',
+  'restartWorkflow',
+  'runFlows',
+  'startFlow',
+  'startFlowFromContextInsert',
+  'startFlowRetroactive'
+];
+
+/** GlideAjax methods (client-side) */
+const GLIDE_AJAX_METHODS = [
+  'addParam',
+  'getParam',
+  'getXML',
+  'getXMLAnswer',
+  'getXMLWait',
+  'getAnswer',
+  'setScope',
+  'setProcessor',
+  'setErrorCallback',
+  'getParameter',
+  'getResponseValue',
+  'newItem'
 ];
 
 // =============================================================================
@@ -861,9 +1158,10 @@ export function extractControlFlow(ast, code) {
       const obj = expr.callee.object;
       const prop = expr.callee.property;
       const propName = prop?.name || prop?.value;
+      const objName = obj.name;
       
       // Check for gs.* calls (GlideSystem)
-      if (obj.type === 'Identifier' && obj.name === 'gs') {
+      if (obj.type === 'Identifier' && objName === 'gs') {
         return true;
       }
       
@@ -877,18 +1175,96 @@ export function extractControlFlow(ast, code) {
         return true;
       }
       
-      // Check for g_form, g_list, etc. (client-side)
-      if (obj.type === 'Identifier' && ['g_form', 'g_list', 'g_service_catalog'].includes(obj.name)) {
+      // Check for g_form methods (client-side form)
+      if (obj.type === 'Identifier' && objName === 'g_form') {
+        return true;
+      }
+      if (propName && G_FORM_METHODS.includes(propName)) {
+        return true;
+      }
+      
+      // Check for g_list methods (client-side list)
+      if (obj.type === 'Identifier' && objName === 'g_list') {
+        return true;
+      }
+      if (propName && G_LIST_METHODS.includes(propName)) {
+        return true;
+      }
+      
+      // Check for g_user methods (client-side user)
+      if (obj.type === 'Identifier' && objName === 'g_user') {
+        return true;
+      }
+      if (propName && G_USER_METHODS.includes(propName)) {
+        return true;
+      }
+      
+      // Check for spUtil methods (Service Portal client)
+      if (obj.type === 'Identifier' && objName === 'spUtil') {
+        return true;
+      }
+      if (propName && SP_UTIL_METHODS.includes(propName)) {
+        return true;
+      }
+      
+      // Check for $sp methods (Service Portal server)
+      if (obj.type === 'Identifier' && objName === '$sp') {
+        return true;
+      }
+      if (propName && SP_METHODS.includes(propName)) {
+        return true;
+      }
+      
+      // Check for GlideAjax methods
+      if (propName && GLIDE_AJAX_METHODS.includes(propName)) {
+        return true;
+      }
+      
+      // Check for g_service_catalog (catalog client scripts)
+      if (obj.type === 'Identifier' && objName === 'g_service_catalog') {
         return true;
       }
       
       // Check for Workflow object calls
-      if (obj.type === 'Identifier' && obj.name === 'workflow') {
+      if (obj.type === 'Identifier' && objName === 'workflow') {
+        return true;
+      }
+      if (propName && WORKFLOW_METHODS.includes(propName)) {
         return true;
       }
       
       // Check for current/previous object access (Business Rules)
-      if (obj.type === 'Identifier' && ['current', 'previous'].includes(obj.name)) {
+      if (obj.type === 'Identifier' && ['current', 'previous'].includes(objName)) {
+        return true;
+      }
+      
+      // Check for email object (notification scripts)
+      if (obj.type === 'Identifier' && objName === 'email') {
+        return true;
+      }
+      
+      // Check for event object (event scripts)
+      if (obj.type === 'Identifier' && objName === 'event') {
+        return true;
+      }
+      
+      // Check for g_scratchpad (client scripts)
+      if (obj.type === 'Identifier' && objName === 'g_scratchpad') {
+        return true;
+      }
+      
+      // Check for request/response objects (scripted REST/processors)
+      if (obj.type === 'Identifier' && ['request', 'response'].includes(objName)) {
+        return true;
+      }
+      
+      // Check for sn_ws namespace (RESTMessageV2, SOAPMessageV2)
+      if (obj.type === 'Identifier' && objName === 'sn_ws') {
+        return true;
+      }
+      
+      // Check for sn_fd namespace (FlowAPI)
+      if (obj.type === 'Identifier' && objName === 'sn_fd') {
         return true;
       }
     }
@@ -896,6 +1272,18 @@ export function extractControlFlow(ast, code) {
     // Check for direct ServiceNow class instantiation
     if (expr.type === 'NewExpression' && expr.callee?.type === 'Identifier') {
       if (SERVICENOW_CLASSES.includes(expr.callee.name)) {
+        return true;
+      }
+    }
+    
+    // Check for namespaced class instantiation (e.g., new sn_ws.RESTMessageV2())
+    if (expr.type === 'NewExpression' && expr.callee?.type === 'MemberExpression') {
+      const ns = expr.callee.object?.name;
+      const cls = expr.callee.property?.name;
+      if (ns && ['sn_ws', 'sn_fd', 'sn_cc', 'sn_sc', 'sn_cmdb', 'sn_hr'].includes(ns)) {
+        return true;
+      }
+      if (cls && SERVICENOW_CLASSES.includes(cls)) {
         return true;
       }
     }
