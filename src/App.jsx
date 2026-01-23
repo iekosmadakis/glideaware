@@ -1290,32 +1290,21 @@ function App() {
                         <div className="settings-list">
                           <label className="settings-item">
                             <span className="settings-label">
-                              <strong>Logic View</strong>
-                              <small>Control flow & database ops</small>
-                            </span>
-                            <button
-                              className={`settings-toggle ${visualizeViewMode === 'logic' ? 'on' : 'off'}`}
-                              onClick={() => setVisualizeViewMode('logic')}
-                            >
-                              <span className="toggle-track">
-                                <span className="toggle-thumb" />
-                              </span>
-                              <span className="toggle-label">{visualizeViewMode === 'logic' ? 'Active' : ''}</span>
-                            </button>
-                          </label>
-                          <label className="settings-item">
-                            <span className="settings-label">
                               <strong>Full Ops View</strong>
-                              <small>Everything that executes</small>
+                              <small>
+                                {visualizeViewMode === 'fullops' 
+                                  ? 'Showing everything that executes' 
+                                  : 'Currently showing control flow only'}
+                              </small>
                             </span>
                             <button
                               className={`settings-toggle ${visualizeViewMode === 'fullops' ? 'on' : 'off'}`}
-                              onClick={() => setVisualizeViewMode('fullops')}
+                              onClick={() => setVisualizeViewMode(visualizeViewMode === 'fullops' ? 'logic' : 'fullops')}
                             >
                               <span className="toggle-track">
                                 <span className="toggle-thumb" />
                               </span>
-                              <span className="toggle-label">{visualizeViewMode === 'fullops' ? 'Active' : ''}</span>
+                              <span className="toggle-label">{visualizeViewMode === 'fullops' ? 'On' : 'Off'}</span>
                             </button>
                           </label>
                         </div>
