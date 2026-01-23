@@ -332,7 +332,7 @@ function generateReactFlowNodes(flowNodes, positions, viewMode = 'fullops') {
         position,
         data: {
           label: displayLabel,
-          fullLabel: node.detailedLabel || node.label,
+          genericLabel: node.label || node.type,
           nodeType: node.type,
           subtype: node.subtype,
           snippet: node.snippet,

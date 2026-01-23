@@ -1508,7 +1508,7 @@ function App() {
                   <div className="selected-node-header">
                     <span className="selected-node-type">{selectedFlowNode.data.nodeType}</span>
                   </div>
-                  <div className="selected-node-label">{selectedFlowNode.data.fullLabel}</div>
+                  <div className="selected-node-label">{selectedFlowNode.data.genericLabel}</div>
                   {selectedFlowNode.data.snippet && (
                     <pre className="selected-node-snippet">{selectedFlowNode.data.snippet}</pre>
                   )}
