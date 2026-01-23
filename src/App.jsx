@@ -263,7 +263,7 @@ function App() {
   const [visualizeError, setVisualizeError] = useState(null);
   const [selectedFlowNode, setSelectedFlowNode] = useState(null);
   const visualizeEditorRef = useRef(null);
-  const [visualizeViewMode, setVisualizeViewMode] = useState('logic'); // 'logic' or 'fullops'
+  const [visualizeViewMode, setVisualizeViewMode] = useState('fullops'); // 'logic' or 'fullops'
   const [showVisualizeSettings, setShowVisualizeSettings] = useState(false);
   const visualizeSettingsRef = useRef(null);
   const [outputCode, setOutputCode] = useState('');
@@ -582,8 +582,8 @@ function App() {
       return;
     }
 
-    // Step 5: Generate React Flow diagram
-    const { nodes, edges } = generateFlowDiagram(filteredNodes);
+    // Step 5: Generate React Flow diagram with view mode for label selection
+    const { nodes, edges } = generateFlowDiagram(filteredNodes, visualizeViewMode);
     
     setFlowNodes(nodes);
     setFlowEdges(edges);

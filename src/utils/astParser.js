@@ -816,6 +816,7 @@ export function extractControlFlow(ast, code) {
           id: generateId(),
           type: 'condition',
           label: 'if()',
+          detailedLabel: `if (${condSnippet})`,
           snippet: `if (${condSnippet})`,
           loc: node.loc,
           range: [node.start, node.end],
@@ -873,6 +874,7 @@ export function extractControlFlow(ast, code) {
           id: generateId(),
           type: 'switch',
           label: 'switch()',
+          detailedLabel: `switch (${switchSnippet})`,
           snippet: `switch (${switchSnippet})`,
           loc: node.loc,
           range: [node.start, node.end],
@@ -909,6 +911,7 @@ export function extractControlFlow(ast, code) {
           type: 'loop',
           loopType,
           label: `${loopType}()`,
+          detailedLabel: `while (${condSnippet})`,
           snippet: `while (${condSnippet})`,
           loc: node.loc,
           range: [node.start, node.end],
@@ -931,14 +934,14 @@ export function extractControlFlow(ast, code) {
       case 'ForInStatement':
       case 'ForOfStatement': {
         let label = 'for()';
-        let snippet = getSnippet(node.start, node.body?.start || node.end, 50);
+        let detailedLabel = getSnippet(node.start, node.body?.start || node.end, 40);
         
         if (node.type === 'ForInStatement') {
           label = 'for-in()';
-          snippet = `for (... in ${getSnippet(node.right.start, node.right.end, 25)})`;
+          detailedLabel = `for (... in ${getSnippet(node.right.start, node.right.end, 25)})`;
         } else if (node.type === 'ForOfStatement') {
           label = 'for-of()';
-          snippet = `for (... of ${getSnippet(node.right.start, node.right.end, 25)})`;
+          detailedLabel = `for (... of ${getSnippet(node.right.start, node.right.end, 25)})`;
         }
 
         const forNode = {
@@ -946,7 +949,8 @@ export function extractControlFlow(ast, code) {
           type: 'loop',
           loopType: 'for',
           label,
-          snippet,
+          detailedLabel,
+          snippet: detailedLabel,
           loc: node.loc,
           range: [node.start, node.end],
           parentId

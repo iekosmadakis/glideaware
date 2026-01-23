@@ -303,17 +303,25 @@ function calculateLayout(flowNodes) {
  * Converts AST flow nodes to React Flow nodes
  * @param {Array} flowNodes - Array of flow nodes from AST parser
  * @param {Object} positions - Map of node IDs to positions
+ * @param {string} viewMode - 'logic' for generic labels, 'fullops' for detailed labels
  * @returns {Array} - Array of React Flow node objects
  */
-function generateReactFlowNodes(flowNodes, positions) {
+function generateReactFlowNodes(flowNodes, positions, viewMode = 'fullops') {
   return flowNodes
     .filter(node => node.type !== 'branch') // Filter out branch markers
     .map(node => {
       const style = NODE_STYLES[node.type] || NODE_STYLES.default;
       const position = positions[node.id] || { x: 0, y: 0 };
 
+      // Choose label based on view mode
+      // Full Ops: use detailedLabel if available, otherwise label
+      // Logic: use generic label
+      const sourceLabel = viewMode === 'fullops' 
+        ? (node.detailedLabel || node.label || node.type)
+        : (node.label || node.type);
+
       // Truncate label if too long
-      let displayLabel = node.label || node.type;
+      let displayLabel = sourceLabel;
       if (displayLabel.length > 35) {
         displayLabel = displayLabel.substring(0, 32) + '...';
       }
@@ -324,7 +332,7 @@ function generateReactFlowNodes(flowNodes, positions) {
         position,
         data: {
           label: displayLabel,
-          fullLabel: node.label,
+          fullLabel: node.detailedLabel || node.label,
           nodeType: node.type,
           subtype: node.subtype,
           snippet: node.snippet,
@@ -468,9 +476,10 @@ function generateReactFlowEdges(flowNodes) {
 /**
  * Generates React Flow diagram data from AST flow nodes
  * @param {Array} flowNodes - Array of flow nodes from AST parser
+ * @param {string} viewMode - 'logic' for generic labels, 'fullops' for detailed labels
  * @returns {Object} - { nodes: Array, edges: Array }
  */
-export function generateFlowDiagram(flowNodes) {
+export function generateFlowDiagram(flowNodes, viewMode = 'fullops') {
   if (!flowNodes || flowNodes.length === 0) {
     return { nodes: [], edges: [] };
   }
@@ -479,7 +488,7 @@ export function generateFlowDiagram(flowNodes) {
   const positions = calculateLayout(flowNodes);
 
   // Generate React Flow nodes and edges
-  const nodes = generateReactFlowNodes(flowNodes, positions);
+  const nodes = generateReactFlowNodes(flowNodes, positions, viewMode);
   const edges = generateReactFlowEdges(flowNodes);
 
   return { nodes, edges };
