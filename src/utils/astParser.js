@@ -1188,6 +1188,24 @@ export function extractControlFlow(ast, code) {
           nodes.push(assignNode);
           return assignNode.id;
         }
+
+        // Check for update expressions
+        if (expr.type === 'UpdateExpression') {
+          const varName = expr.argument?.name || getSnippet(expr.argument.start, expr.argument.end, 15);
+          const operator = expr.operator; // '++' or '--'
+          const label = expr.prefix ? `${operator}${varName}` : `${varName}${operator}`;
+          const updateNode = {
+            id: generateId(),
+            type: 'assignment-generic',
+            label: label,
+            snippet: getSnippet(node.start, node.end),
+            loc: node.loc,
+            range: [node.start, node.end],
+            parentId
+          };
+          nodes.push(updateNode);
+          return updateNode.id;
+        }
         break;
       }
 
