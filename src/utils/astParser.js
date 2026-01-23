@@ -793,11 +793,13 @@ export function extractControlFlow(ast, code) {
             } else {
               // Generic variable initialization (for Full Ops view)
               const varName = decl.id?.name || '?';
+              const fullSnippet = getSnippet(node.start, node.end, 50);
               const varNode = {
                 id: generateId(),
                 type: 'variable',
                 label: `${node.kind} ${varName}`,
-                snippet: getSnippet(node.start, node.end),
+                detailedLabel: fullSnippet,
+                snippet: fullSnippet,
                 loc: node.loc,
                 range: [node.start, node.end],
                 parentId
@@ -1117,12 +1119,14 @@ export function extractControlFlow(ast, code) {
           const snCall = getServiceNowCallType(expr);
           if (snCall) {
             const callLabel = getCallLabel(expr);
+            const fullSnippet = getSnippet(node.start, node.end, 50);
             const callNode = {
               id: generateId(),
               type: 'servicenow-call',
               subtype: snCall?.category,
               label: callLabel,
-              snippet: getSnippet(node.start, node.end),
+              detailedLabel: fullSnippet,
+              snippet: fullSnippet,
               loc: node.loc,
               range: [node.start, node.end],
               parentId
@@ -1134,11 +1138,13 @@ export function extractControlFlow(ast, code) {
           // Check for other significant calls (gs.*, g_form.*, etc.)
           if (isSignificantCall(expr)) {
             const callLabel = getCallLabel(expr);
+            const fullSnippet = getSnippet(node.start, node.end, 50);
             const callNode = {
               id: generateId(),
               type: 'call',
               label: callLabel,
-              snippet: getSnippet(node.start, node.end),
+              detailedLabel: fullSnippet,
+              snippet: fullSnippet,
               loc: node.loc,
               range: [node.start, node.end],
               parentId
@@ -1149,11 +1155,13 @@ export function extractControlFlow(ast, code) {
           
           // Generic function call (for Full Ops view)
           const callLabel = getCallLabel(expr);
+          const fullSnippet = getSnippet(node.start, node.end, 50);
           const callNode = {
             id: generateId(),
             type: 'call-generic',
             label: callLabel,
-            snippet: getSnippet(node.start, node.end),
+            detailedLabel: fullSnippet,
+            snippet: fullSnippet,
             loc: node.loc,
             range: [node.start, node.end],
             parentId
@@ -1166,6 +1174,7 @@ export function extractControlFlow(ast, code) {
         if (expr.type === 'AssignmentExpression') {
           const right = expr.right;
           const leftSnippet = getSnippet(expr.left.start, expr.left.end, 15);
+          const fullSnippet = getSnippet(node.start, node.end, 50);
           
           // Assignment with significant call
           if (right.type === 'CallExpression' && isSignificantCall(right)) {
@@ -1174,7 +1183,8 @@ export function extractControlFlow(ast, code) {
               id: generateId(),
               type: 'assignment',
               label: `${leftSnippet} = ${callLabel}`,
-              snippet: getSnippet(node.start, node.end),
+              detailedLabel: fullSnippet,
+              snippet: fullSnippet,
               loc: node.loc,
               range: [node.start, node.end],
               parentId
@@ -1184,12 +1194,12 @@ export function extractControlFlow(ast, code) {
           }
           
           // Generic assignment (for Full Ops view)
-          const rightSnippet = getSnippet(right.start, right.end, 20);
           const assignNode = {
             id: generateId(),
             type: 'assignment-generic',
-            label: `${leftSnippet} = ${rightSnippet}`,
-            snippet: getSnippet(node.start, node.end),
+            label: `${leftSnippet} = ...`,
+            detailedLabel: fullSnippet,
+            snippet: fullSnippet,
             loc: node.loc,
             range: [node.start, node.end],
             parentId
