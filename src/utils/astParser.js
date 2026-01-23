@@ -811,12 +811,12 @@ export function extractControlFlow(ast, code) {
 
       // If statements
       case 'IfStatement': {
-        const condSnippet = getSnippet(node.test.start, node.test.end, 40);
+        const condSnippet = getSnippet(node.test.start, node.test.end, 30);
         const ifNode = {
           id: generateId(),
           type: 'condition',
-          label: `if (${condSnippet})`,
-          snippet: getSnippet(node.start, node.consequent?.start || node.end),
+          label: 'if()',
+          snippet: `if (${condSnippet})`,
           loc: node.loc,
           range: [node.start, node.end],
           testRange: [node.test.start, node.test.end],
@@ -868,12 +868,12 @@ export function extractControlFlow(ast, code) {
 
       // Switch statements
       case 'SwitchStatement': {
-        const switchSnippet = getSnippet(node.discriminant.start, node.discriminant.end, 30);
+        const switchSnippet = getSnippet(node.discriminant.start, node.discriminant.end, 25);
         const switchNode = {
           id: generateId(),
           type: 'switch',
-          label: `switch (${switchSnippet})`,
-          snippet: getSnippet(node.start, node.cases[0]?.start || node.end),
+          label: 'switch()',
+          snippet: `switch (${switchSnippet})`,
           loc: node.loc,
           range: [node.start, node.end],
           parentId
@@ -902,13 +902,14 @@ export function extractControlFlow(ast, code) {
       // Loops
       case 'WhileStatement':
       case 'DoWhileStatement': {
-        const condSnippet = getSnippet(node.test.start, node.test.end, 40);
+        const condSnippet = getSnippet(node.test.start, node.test.end, 30);
+        const loopType = node.type === 'WhileStatement' ? 'while' : 'do-while';
         const loopNode = {
           id: generateId(),
           type: 'loop',
-          loopType: node.type === 'WhileStatement' ? 'while' : 'do-while',
-          label: `while (${condSnippet})`,
-          snippet: getSnippet(node.start, node.body?.start || node.end),
+          loopType,
+          label: `${loopType}()`,
+          snippet: `while (${condSnippet})`,
           loc: node.loc,
           range: [node.start, node.end],
           testRange: [node.test.start, node.test.end],
@@ -929,11 +930,15 @@ export function extractControlFlow(ast, code) {
       case 'ForStatement':
       case 'ForInStatement':
       case 'ForOfStatement': {
-        let label = 'for (...)';
+        let label = 'for()';
+        let snippet = getSnippet(node.start, node.body?.start || node.end, 50);
+        
         if (node.type === 'ForInStatement') {
-          label = `for (... in ${getSnippet(node.right.start, node.right.end, 20)})`;
+          label = 'for-in()';
+          snippet = `for (... in ${getSnippet(node.right.start, node.right.end, 25)})`;
         } else if (node.type === 'ForOfStatement') {
-          label = `for (... of ${getSnippet(node.right.start, node.right.end, 20)})`;
+          label = 'for-of()';
+          snippet = `for (... of ${getSnippet(node.right.start, node.right.end, 25)})`;
         }
 
         const forNode = {
@@ -941,7 +946,7 @@ export function extractControlFlow(ast, code) {
           type: 'loop',
           loopType: 'for',
           label,
-          snippet: getSnippet(node.start, node.body?.start || node.end),
+          snippet,
           loc: node.loc,
           range: [node.start, node.end],
           parentId
