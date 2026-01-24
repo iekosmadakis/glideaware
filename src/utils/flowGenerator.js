@@ -12,11 +12,10 @@
  * Node dimensions and spacing
  */
 const LAYOUT = {
-  NODE_WIDTH: 200,
+  NODE_WIDTH: 250,
   NODE_HEIGHT: 50,
-  HORIZONTAL_GAP: 80,
-  VERTICAL_GAP: 60,
-  BRANCH_OFFSET: 120,
+  VERTICAL_GAP: 50,
+  BRANCH_OFFSET: 160,
   INITIAL_X: 100,
   INITIAL_Y: 50
 };
@@ -320,10 +319,10 @@ function generateReactFlowNodes(flowNodes, positions, viewMode = 'fullops') {
         ? (node.detailedLabel || node.label || node.type)
         : (node.label || node.type);
 
-      // Truncate label if too long
+      // Truncate label if too long (fits ~28 chars in 200px with 12px mono font)
       let displayLabel = sourceLabel;
-      if (displayLabel.length > 35) {
-        displayLabel = displayLabel.substring(0, 32) + '...';
+      if (displayLabel.length > 30) {
+        displayLabel = displayLabel.substring(0, 27) + '...';
       }
 
       return {
