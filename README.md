@@ -201,9 +201,6 @@ Toggle between two visualization modes using the ⚙️ settings button:
 | **Full Ops View** (default) | Everything that executes | All nodes with detailed labels |
 | **Logic View** | Control flow focus | Only control flow, database ops, high-impact behavior |
 
-- **Full Ops View**: Displays detailed labels (e.g., `if (current.active === true)`) and includes all operations
-- **Logic View**: Shows generic labels (e.g., `if()`) and hides low-impact nodes like variable declarations
-
 ### Node Types
 | Node | Description |
 |------|-------------|
