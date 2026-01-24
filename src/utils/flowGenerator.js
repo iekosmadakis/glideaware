@@ -376,13 +376,14 @@ function generateReactFlowEdges(flowNodes) {
 
   /**
    * Adds an edge if it doesn't already exist
+   * @param {string} sourceHandle - Optional handle ID for the source node
    */
-  const addEdge = (source, target, style, label = undefined) => {
-    const edgeKey = `${source}_${target}`;
+  const addEdge = (source, target, style, label = undefined, sourceHandle = undefined) => {
+    const edgeKey = `${source}_${target}_${sourceHandle || 'default'}`;
     if (addedEdges.has(edgeKey)) return;
     addedEdges.add(edgeKey);
 
-    edges.push({
+    const edge = {
       id: `edge_${edgeKey}`,
       source,
       target,
@@ -396,7 +397,14 @@ function generateReactFlowEdges(flowNodes) {
         strokeWidth: style.strokeWidth,
         strokeDasharray: style.strokeDasharray
       }
-    });
+    };
+
+    // Add sourceHandle if specified (for condition branches)
+    if (sourceHandle) {
+      edge.sourceHandle = sourceHandle;
+    }
+
+    edges.push(edge);
   };
 
   // Create edges from parents to first children
@@ -410,10 +418,11 @@ function generateReactFlowEdges(flowNodes) {
     if (node.type === 'branch') {
       const branchChildren = childrenByParent[node.id] || [];
       if (branchChildren.length > 0) {
-        // Connect parent to first child of each branch
+        // Connect parent to first child of each branch using the correct handle
         const firstChild = branchChildren[0];
         const edgeStyle = node.branchType === 'true' ? EDGE_STYLES.true : EDGE_STYLES.false;
-        addEdge(parent.id, firstChild.id, edgeStyle, edgeStyle.label);
+        const sourceHandle = node.branchType; // 'true' or 'false' matches handle IDs
+        addEdge(parent.id, firstChild.id, edgeStyle, edgeStyle.label, sourceHandle);
       }
       return;
     }
