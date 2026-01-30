@@ -2067,65 +2067,128 @@ function App() {
               <div className="mode-info-dropdown">
                 <div className="mode-info-header">
                   {mode === 'json' 
-                    ? (jsonSubMode === 'diff' ? <><Icon name="compare" size={16} /> JSON Diff Mode</> : <><Icon name="json" size={16} /> JSON Format Mode</>)
-                    : (jsSubMode === 'visualize' ? <><Icon name="flow" size={16} /> Flow Visualization</> : (jsSubMode === 'diff' ? <><Icon name="compare" size={16} /> Compare & Polish</> : <><Icon name="sparkles" size={16} /> Polish Mode</>))
+                    ? (jsonSubMode === 'diff' ? <><Icon name="compare" size={14} /> JSON Diff</> : <><Icon name="json" size={14} /> JSON Format</>)
+                    : (jsSubMode === 'visualize' ? <><Icon name="flow" size={14} /> Flow Visualization</> : (jsSubMode === 'diff' ? <><Icon name="compare" size={14} /> Compare & Polish</> : <><Icon name="sparkles" size={14} /> Polish Mode</>))
                   }
                 </div>
                 <div className="mode-info-content">
+                  {/* JSON Format Mode */}
                   {mode === 'json' && jsonSubMode !== 'diff' && (
                     <>
-                      <p>Format and validate JSON with auto-fixes:</p>
-                      <ul>
-                        <li>Remove comments and trailing commas</li>
-                        <li>Convert single to double quotes</li>
-                        <li>Quote unquoted keys</li>
-                        <li>Detect duplicate keys and deep nesting</li>
-                      </ul>
+                      <div className="mode-info-section">
+                        <div className="mode-info-section-title">Auto-Fixes</div>
+                        <ul>
+                          <li>Strip comments (single & multi-line)</li>
+                          <li>Remove trailing commas</li>
+                          <li>Convert single to double quotes</li>
+                          <li>Quote unquoted object keys</li>
+                          <li>Fix multiple consecutive commas</li>
+                          <li>Add missing closing braces/brackets</li>
+                        </ul>
+                      </div>
+                      <div className="mode-info-section">
+                        <div className="mode-info-section-title">Warnings</div>
+                        <ul>
+                          <li>Duplicate keys detection</li>
+                          <li>Deep nesting (10+ levels)</li>
+                          <li>Long strings & large files</li>
+                          <li>Excessive nulls or empty containers</li>
+                        </ul>
+                      </div>
                     </>
                   )}
+                  {/* JSON Diff Mode */}
                   {mode === 'json' && jsonSubMode === 'diff' && (
-                    <>
-                      <p>Compare two JSON objects side by side:</p>
+                    <div className="mode-info-section">
+                      <div className="mode-info-section-title">Features</div>
                       <ul>
+                        <li>Side-by-side JSON editors</li>
                         <li>Visual diff with color-coded changes</li>
-                        <li>Statistics for additions, deletions, modifications</li>
+                        <li>Statistics: additions, deletions, modifications</li>
                         <li>Swap button to reverse comparison</li>
+                        <li>Load sample data to try it out</li>
                       </ul>
-                    </>
+                    </div>
                   )}
-                  {mode === 'js' && jsSubMode === 'polish' && (
+                  {/* JavaScript Polish Mode */}
+                  {mode === 'javascript' && jsSubMode === 'format' && (
                     <>
-                      <p>Format and analyze ServiceNow scripts:</p>
-                      <ul>
-                        <li>Prettier formatting with SN-friendly settings</li>
-                        <li>Auto-fix typos and common mistakes</li>
-                        <li>Performance and security warnings</li>
-                        <li>Best practice suggestions</li>
-                      </ul>
+                      <div className="mode-info-section">
+                        <div className="mode-info-section-title">Formatting</div>
+                        <ul>
+                          <li>Prettier with ServiceNow-friendly settings</li>
+                          <li>Normalize line endings & whitespace</li>
+                          <li>Fix keyword spacing & semicolons</li>
+                        </ul>
+                      </div>
+                      <div className="mode-info-section">
+                        <div className="mode-info-section-title">ServiceNow Fixes</div>
+                        <ul>
+                          <li>Typo detection with fuzzy matching</li>
+                          <li>Context-aware: knows GlideRecord, g_form, gs...</li>
+                          <li>60+ classes, 400+ methods supported</li>
+                          <li>gs.now() → GlideDateTime conversion</li>
+                          <li>getValue(&apos;sys_id&apos;) → getUniqueValue()</li>
+                        </ul>
+                      </div>
+                      <div className="mode-info-section">
+                        <div className="mode-info-section-title">Warnings</div>
+                        <ul>
+                          <li>Performance: update() in loops, N+1 queries</li>
+                          <li>Security: eval(), hardcoded sys_ids</li>
+                          <li>Best practices: empty catch, deep nesting</li>
+                        </ul>
+                      </div>
                     </>
                   )}
-                  {mode === 'js' && jsSubMode === 'diff' && (
+                  {/* JavaScript Compare Mode */}
+                  {mode === 'javascript' && jsSubMode === 'diff' && (
+                    <div className="mode-info-section">
+                      <div className="mode-info-section-title">Features</div>
+                      <ul>
+                        <li>Monaco DiffEditor with real-time comparison</li>
+                        <li>Color-coded additions, deletions, changes</li>
+                        <li>Polish the revised code while keeping original</li>
+                        <li>Toggle diff highlighting on/off</li>
+                        <li>Download both files with timestamps</li>
+                        <li>Swap panels to reverse comparison</li>
+                      </ul>
+                    </div>
+                  )}
+                  {/* JavaScript Visualize Mode */}
+                  {mode === 'javascript' && jsSubMode === 'visualize' && (
                     <>
-                      <p>Compare and polish JavaScript side by side:</p>
-                      <ul>
-                        <li>Visual diff with Monaco DiffEditor</li>
-                        <li>Polish revised code while keeping original</li>
-                        <li>Toggle highlighting on/off</li>
-                        <li>Download both versions</li>
-                      </ul>
+                      <div className="mode-info-section">
+                        <div className="mode-info-section-title">Flow Diagrams</div>
+                        <ul>
+                          <li>Interactive canvas with React Flow</li>
+                          <li>Zoom, pan, and minimap navigation</li>
+                          <li>Click any node to see code details</li>
+                          <li>Color-coded by type: loops, conditions, calls</li>
+                        </ul>
+                      </div>
+                      <div className="mode-info-section">
+                        <div className="mode-info-section-title">ServiceNow-Aware</div>
+                        <ul>
+                          <li>Recognizes GlideRecord, gs.*, g_form, g_user</li>
+                          <li>Parses IIFE patterns & Business Rules</li>
+                          <li>Full Ops View: all operations</li>
+                          <li>Logic View: control flow only</li>
+                        </ul>
+                      </div>
                     </>
                   )}
-                  {mode === 'js' && jsSubMode === 'visualize' && (
-                    <>
-                      <p>Generate interactive flow diagrams:</p>
-                      <ul>
-                        <li>Visualize control flow and logic</li>
-                        <li>ServiceNow-aware parsing</li>
-                        <li>Click nodes to see code details</li>
-                        <li>Toggle between Full Ops and Logic view</li>
-                      </ul>
-                    </>
-                  )}
+                  {/* Privacy Section - Always visible */}
+                  <div className="mode-info-section mode-info-privacy">
+                    <div className="mode-info-section-title">
+                      <Icon name="check" size={10} /> Privacy
+                    </div>
+                    <ul>
+                      <li><strong>100% client-side</strong> — works without internet</li>
+                      <li>Your code never leaves your browser</li>
+                      <li>No server, no tracking, no data collection</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             )}

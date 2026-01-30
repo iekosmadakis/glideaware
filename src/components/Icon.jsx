@@ -340,26 +340,6 @@ const icons = {
   ),
 
   /**
-   * Search/Magnifier - Used for search/visualize
-   */
-  search: (
-    <>
-      <circle 
-        cx="11" cy="11" r="8" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="1.5"
-      />
-      <path 
-        d="M21 21L16.65 16.65" 
-        stroke="currentColor" 
-        strokeWidth="1.5" 
-        strokeLinecap="round"
-      />
-    </>
-  ),
-
-  /**
    * Info - Used for information tooltips
    */
   info: (
@@ -377,28 +357,6 @@ const icons = {
         strokeLinecap="round"
       />
       <circle cx="12" cy="8" r="1" fill="currentColor" />
-    </>
-  ),
-
-  /**
-   * Eye - Used for view/visibility toggle
-   */
-  eye: (
-    <>
-      <path 
-        d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="1.5" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-      />
-      <circle 
-        cx="12" cy="12" r="3" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="1.5"
-      />
     </>
   ),
 
@@ -430,20 +388,6 @@ const icons = {
         strokeLinejoin="round"
       />
     </>
-  ),
-
-  /**
-   * Play - Used for generate/run actions
-   */
-  play: (
-    <path 
-      d="M5 3L19 12L5 21V3Z" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="1.5" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    />
   )
 };
 
