@@ -29,10 +29,13 @@ const NoteEditor = forwardRef(function NoteEditor({ onToast }, ref) {
   const [notes, setNotes] = useState([]);
   const [selectedNote, setSelectedNote] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('recent'); // 'recent', 'oldest', 'alphabetical'
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const editorRef = useRef(null);
   const saveTimeoutRef = useRef(null);
+  const sortDropdownRef = useRef(null);
 
   // -------------------------------------------------------------------------
   // Data Loading
@@ -185,13 +188,40 @@ const NoteEditor = forwardRef(function NoteEditor({ onToast }, ref) {
   };
 
   // -------------------------------------------------------------------------
-  // Filtering
+  // Filtering & Sorting
   // -------------------------------------------------------------------------
 
-  const filteredNotes = notes.filter(note => 
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredNotes = notes
+    .filter(note => 
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.content.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'oldest':
+          return new Date(a.updatedAt) - new Date(b.updatedAt);
+        case 'alphabetical':
+          return (a.title || 'Untitled').localeCompare(b.title || 'Untitled');
+        case 'recent':
+        default:
+          return new Date(b.updatedAt) - new Date(a.updatedAt);
+      }
+    });
+
+  /**
+   * Close sort dropdown when clicking outside
+   */
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target)) {
+        setShowSortDropdown(false);
+      }
+    };
+    if (showSortDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSortDropdown]);
 
   // -------------------------------------------------------------------------
   // Render
@@ -220,13 +250,40 @@ const NoteEditor = forwardRef(function NoteEditor({ onToast }, ref) {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button 
-            className="new-note-btn"
-            onClick={handleCreateNote}
-            title="New Note"
-          >
-            <Icon name="sparkles" size={16} />
-          </button>
+          <div className="notes-sort-container" ref={sortDropdownRef}>
+            <button 
+              className={`notes-sort-btn ${showSortDropdown ? 'active' : ''}`}
+              onClick={() => setShowSortDropdown(!showSortDropdown)}
+              title="Sort notes"
+            >
+              <Icon name="filter" size={14} />
+            </button>
+            {showSortDropdown && (
+              <div className="notes-sort-dropdown">
+                <button 
+                  className={`sort-option ${sortBy === 'recent' ? 'active' : ''}`}
+                  onClick={() => { setSortBy('recent'); setShowSortDropdown(false); }}
+                >
+                  <Icon name="check" size={12} />
+                  Recent first
+                </button>
+                <button 
+                  className={`sort-option ${sortBy === 'oldest' ? 'active' : ''}`}
+                  onClick={() => { setSortBy('oldest'); setShowSortDropdown(false); }}
+                >
+                  <Icon name="check" size={12} />
+                  Oldest first
+                </button>
+                <button 
+                  className={`sort-option ${sortBy === 'alphabetical' ? 'active' : ''}`}
+                  onClick={() => { setSortBy('alphabetical'); setShowSortDropdown(false); }}
+                >
+                  <Icon name="check" size={12} />
+                  Alphabetical
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         <div className="notes-list">
           {filteredNotes.map(note => (
@@ -326,10 +383,6 @@ const NoteEditor = forwardRef(function NoteEditor({ onToast }, ref) {
             <Icon name="clipboard" size={48} />
             <h3>No Note Selected</h3>
             <p>Select a note from the sidebar or create a new one</p>
-            <button className="create-note-btn" onClick={handleCreateNote}>
-              <Icon name="sparkles" size={16} />
-              Create New Note
-            </button>
           </div>
         )}
       </div>

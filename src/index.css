@@ -50,9 +50,11 @@ body {
 .panel-btn .icon-svg,
 .fixes-badge .icon-svg,
 .add-task-btn .icon-svg,
-.new-note-btn .icon-svg,
-.new-drawing-btn .icon-svg,
-.toggle-sidebar-btn .icon-svg,
+.notes-sort-btn .icon-svg,
+.sort-option .icon-svg,
+.drawings-sort-btn .icon-svg,
+.sidebar-expand-btn .icon-svg,
+.sidebar-collapse-btn .icon-svg,
 .delete-drawing-btn .icon-svg,
 .tool-btn .icon-svg,
 .delete-note-btn .icon-svg,
@@ -2490,22 +2492,78 @@ body {
   color: var(--text-muted);
 }
 
-.new-note-btn {
+.notes-sort-container {
+  position: relative;
+}
+
+.notes-sort-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 36px;
   height: 36px;
-  background: var(--accent-primary);
-  border: none;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: white;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.new-note-btn:hover {
-  background: #00c49a;
+.notes-sort-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border-color: var(--border-glow);
+}
+
+.notes-sort-btn.active {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  background: rgba(0, 212, 170, 0.1);
+}
+
+.notes-sort-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 140px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  animation: dropdownSlide 0.15s ease-out;
+  overflow: hidden;
+}
+
+.sort-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.sort-option:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.sort-option .icon-svg {
+  opacity: 0;
+  color: var(--accent-primary);
+}
+
+.sort-option.active .icon-svg {
+  opacity: 1;
 }
 
 .notes-list {
@@ -2683,27 +2741,6 @@ body {
   font-size: 13px;
 }
 
-.create-note-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: var(--accent-primary);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 8px;
-}
-
-.create-note-btn:hover {
-  background: #00c49a;
-}
-
 /* =============================================================================
    DRAWING CANVAS
    ============================================================================= */
@@ -2726,46 +2763,136 @@ body {
 
 /* Drawings Sidebar */
 .drawings-sidebar {
-  width: 60px;
+  width: 40px;
   background: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   transition: width 0.2s ease;
-  position: relative;
 }
 
 .drawings-sidebar.open {
   width: 240px;
 }
 
+/* Sidebar Expand Button (collapsed state) - matches backlog-expand-btn */
+.sidebar-expand-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar-expand-btn:hover {
+  color: var(--accent-primary);
+  background: var(--bg-tertiary);
+}
+
+.sidebar-badge {
+  background: var(--accent-primary);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 18px;
+  text-align: center;
+}
+
 .drawings-sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px;
+  gap: 8px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border-color);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
 }
 
-.new-drawing-btn {
+/* Sidebar Collapse Button (expanded state) */
+.sidebar-collapse-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
-  background: var(--accent-primary);
+  background: transparent;
   border: none;
   border-radius: 6px;
-  color: white;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-collapse-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.sidebar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.sidebar-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.drawings-sort-container {
+  position: relative;
+}
+
+.drawings-sort-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.new-drawing-btn:hover {
-  background: #00c49a;
+.drawings-sort-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border-color: var(--border-glow);
+}
+
+.drawings-sort-btn.active {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  background: rgba(0, 212, 170, 0.1);
+}
+
+.drawings-sort-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 140px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  animation: dropdownSlide 0.15s ease-out;
+  overflow: hidden;
 }
 
 .drawings-list {
@@ -2830,29 +2957,6 @@ body {
   text-align: center;
   color: var(--text-muted);
   font-size: 11px;
-}
-
-.toggle-sidebar-btn {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.toggle-sidebar-btn:hover {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
 }
 
 /* Drawing Area */
@@ -3037,23 +3141,3 @@ body {
   font-size: 13px;
 }
 
-.create-drawing-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: var(--accent-primary);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 8px;
-}
-
-.create-drawing-btn:hover {
-  background: #00c49a;
-}

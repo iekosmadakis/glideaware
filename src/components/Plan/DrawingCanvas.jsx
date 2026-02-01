@@ -73,8 +73,11 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
   const [currentPath, setCurrentPath] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showDrawingsList, setShowDrawingsList] = useState(true);
+  const [sortBy, setSortBy] = useState('recent'); // 'recent', 'oldest', 'alphabetical'
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   
   const canvasRef = useRef(null);
+  const sortDropdownRef = useRef(null);
   const contextRef = useRef(null);
   const saveTimeoutRef = useRef(null);
 
@@ -149,6 +152,36 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [selectedDrawing]);
+
+  /**
+   * Close sort dropdown when clicking outside
+   */
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target)) {
+        setShowSortDropdown(false);
+      }
+    };
+    if (showSortDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSortDropdown]);
+
+  /**
+   * Returns sorted drawings based on current sort setting
+   */
+  const sortedDrawings = drawings.slice().sort((a, b) => {
+    switch (sortBy) {
+      case 'oldest':
+        return new Date(a.updatedAt) - new Date(b.updatedAt);
+      case 'alphabetical':
+        return (a.title || 'Untitled').localeCompare(b.title || 'Untitled');
+      case 'recent':
+      default:
+        return new Date(b.updatedAt) - new Date(a.updatedAt);
+    }
+  });
 
   // -------------------------------------------------------------------------
   // Drawing Operations
@@ -527,46 +560,90 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
     <div className="drawing-canvas-container">
       {/* Drawings Sidebar */}
       <div className={`drawings-sidebar ${showDrawingsList ? 'open' : ''}`}>
-        <div className="drawings-sidebar-header">
-          <span>Sketches</span>
-          <button 
-            className="new-drawing-btn"
-            onClick={handleCreateDrawing}
-            title="New Sketch"
-          >
-            <Icon name="sparkles" size={16} />
-          </button>
-        </div>
-        <div className="drawings-list">
-          {drawings.map(drawing => (
-            <div
-              key={drawing.id}
-              className={`drawing-list-item ${selectedDrawing?.id === drawing.id ? 'selected' : ''}`}
-              onClick={() => setSelectedDrawing(drawing)}
-            >
-              <Icon name="flow" size={14} />
-              <span className="drawing-title">{drawing.title}</span>
-              <button
-                className="delete-drawing-btn"
-                onClick={(e) => { e.stopPropagation(); handleDeleteDrawing(drawing.id); }}
-                title="Delete"
+        {showDrawingsList ? (
+          <>
+            <div className="drawings-sidebar-header">
+              <button 
+                className="sidebar-collapse-btn"
+                onClick={() => setShowDrawingsList(false)}
+                title="Collapse Sidebar"
               >
-                <Icon name="x" size={12} />
+                <Icon name="chevronLeft" size={16} />
               </button>
+              <span className="sidebar-title">Sketches</span>
+              <span className="sidebar-count">{drawings.length}</span>
+              <div className="drawings-sort-container" ref={sortDropdownRef}>
+                <button 
+                  className={`drawings-sort-btn ${showSortDropdown ? 'active' : ''}`}
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                  title="Sort sketches"
+                >
+                  <Icon name="filter" size={14} />
+                </button>
+                {showSortDropdown && (
+                  <div className="drawings-sort-dropdown">
+                    <button 
+                      className={`sort-option ${sortBy === 'recent' ? 'active' : ''}`}
+                      onClick={() => { setSortBy('recent'); setShowSortDropdown(false); }}
+                    >
+                      <Icon name="check" size={12} />
+                      Recent first
+                    </button>
+                    <button 
+                      className={`sort-option ${sortBy === 'oldest' ? 'active' : ''}`}
+                      onClick={() => { setSortBy('oldest'); setShowSortDropdown(false); }}
+                    >
+                      <Icon name="check" size={12} />
+                      Oldest first
+                    </button>
+                    <button 
+                      className={`sort-option ${sortBy === 'alphabetical' ? 'active' : ''}`}
+                      onClick={() => { setSortBy('alphabetical'); setShowSortDropdown(false); }}
+                    >
+                      <Icon name="check" size={12} />
+                      Alphabetical
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-          ))}
-          {drawings.length === 0 && (
-            <div className="drawings-empty">
-              No sketches yet
+            <div className="drawings-list">
+              {sortedDrawings.map(drawing => (
+                <div
+                  key={drawing.id}
+                  className={`drawing-list-item ${selectedDrawing?.id === drawing.id ? 'selected' : ''}`}
+                  onClick={() => setSelectedDrawing(drawing)}
+                >
+                  <Icon name="flow" size={14} />
+                  <span className="drawing-title">{drawing.title}</span>
+                  <button
+                    className="delete-drawing-btn"
+                    onClick={(e) => { e.stopPropagation(); handleDeleteDrawing(drawing.id); }}
+                    title="Delete"
+                  >
+                    <Icon name="x" size={12} />
+                  </button>
+                </div>
+              ))}
+              {drawings.length === 0 && (
+                <div className="drawings-empty">
+                  No sketches yet
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        <button 
-          className="toggle-sidebar-btn"
-          onClick={() => setShowDrawingsList(!showDrawingsList)}
-        >
-          <Icon name={showDrawingsList ? 'x' : 'clipboard'} size={14} />
-        </button>
+          </>
+        ) : (
+          <button 
+            className="sidebar-expand-btn"
+            onClick={() => setShowDrawingsList(true)}
+            title="Show Sketches"
+          >
+            <Icon name="chevronRight" size={16} />
+            {drawings.length > 0 && (
+              <span className="sidebar-badge">{drawings.length}</span>
+            )}
+          </button>
+        )}
       </div>
 
       {/* Canvas Area */}
@@ -662,10 +739,6 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
             <Icon name="flow" size={48} />
             <h3>No Sketch Selected</h3>
             <p>Select a sketch or create a new one</p>
-            <button className="create-drawing-btn" onClick={handleCreateDrawing}>
-              <Icon name="sparkles" size={16} />
-              Create New Sketch
-            </button>
           </div>
         )}
       </div>

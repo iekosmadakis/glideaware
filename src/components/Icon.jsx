@@ -497,6 +497,32 @@ const icons = {
       strokeLinecap="round" 
       strokeLinejoin="round"
     />
+  ),
+
+  /**
+   * Filter/Sort - Used for filtering and sorting lists
+   */
+  filter: (
+    <>
+      <path 
+        d="M4 6H20" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"
+      />
+      <path 
+        d="M7 12H17" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"
+      />
+      <path 
+        d="M10 18H14" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"
+      />
+    </>
   )
 };
 
