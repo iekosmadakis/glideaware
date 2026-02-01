@@ -73,6 +73,7 @@ const TaskBoard = forwardRef(function TaskBoard({ onToast }, ref) {
   const [draggedTask, setDraggedTask] = useState(null);
   const [dragOverColumn, setDragOverColumn] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [backlogSearchQuery, setBacklogSearchQuery] = useState('');
   const modalRef = useRef(null);
 
   // -------------------------------------------------------------------------
@@ -217,10 +218,18 @@ const TaskBoard = forwardRef(function TaskBoard({ onToast }, ref) {
   }, [tasks]);
 
   /**
-   * Gets backlog tasks
+   * Gets filtered backlog tasks based on search query
    */
   const backlogTasks = tasks
     .filter(t => t.status === TASK_STATUS.BACKLOG)
+    .filter(t => {
+      if (!backlogSearchQuery.trim()) return true;
+      const query = backlogSearchQuery.toLowerCase();
+      return (
+        t.title.toLowerCase().includes(query) ||
+        (t.description || '').toLowerCase().includes(query)
+      );
+    })
     .sort((a, b) => a.order - b.order);
 
   // -------------------------------------------------------------------------
@@ -250,8 +259,15 @@ const TaskBoard = forwardRef(function TaskBoard({ onToast }, ref) {
               >
                 <Icon name="chevronLeft" size={16} />
               </button>
-              <span className="backlog-title">Backlog</span>
-              <span className="backlog-count">{backlogTasks.length}</span>
+              <div className="backlog-search">
+                <Icon name="search" size={14} />
+                <input
+                  type="text"
+                  placeholder="Search backlog..."
+                  value={backlogSearchQuery}
+                  onChange={(e) => setBacklogSearchQuery(e.target.value)}
+                />
+              </div>
               <button 
                 className="add-task-btn small"
                 onClick={() => handleCreateTask(TASK_STATUS.BACKLOG)}

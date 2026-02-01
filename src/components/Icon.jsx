@@ -523,6 +523,99 @@ const icons = {
         strokeLinecap="round"
       />
     </>
+  ),
+
+  /**
+   * Search - Used for search inputs
+   */
+  search: (
+    <>
+      <circle 
+        cx="11" 
+        cy="11" 
+        r="7" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2"
+      />
+      <path 
+        d="M21 21L16.5 16.5" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"
+      />
+    </>
+  ),
+
+  /**
+   * Pencil/Edit - Used for notes and editing
+   */
+  pencil: (
+    <>
+      <path 
+        d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      />
+    </>
+  ),
+
+  /**
+   * Brush - Used for sketches and drawing
+   */
+  brush: (
+    <>
+      <path 
+        d="M9.06 11.9l8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      />
+      <path 
+        d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      />
+    </>
+  ),
+
+  /**
+   * File/Document - Used for documents and notes tab
+   */
+  document: (
+    <>
+      <path 
+        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      />
+      <path 
+        d="M14 2v6h6" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      />
+      <path 
+        d="M16 13H8M16 17H8M10 9H8" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      />
+    </>
   )
 };
 

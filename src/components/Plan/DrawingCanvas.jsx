@@ -75,6 +75,7 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
   const [showDrawingsList, setShowDrawingsList] = useState(true);
   const [sortBy, setSortBy] = useState('recent'); // 'recent', 'oldest', 'alphabetical'
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const canvasRef = useRef(null);
   const sortDropdownRef = useRef(null);
@@ -169,19 +170,25 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
   }, [showSortDropdown]);
 
   /**
-   * Returns sorted drawings based on current sort setting
+   * Returns filtered and sorted drawings based on search query and sort setting
    */
-  const sortedDrawings = drawings.slice().sort((a, b) => {
-    switch (sortBy) {
-      case 'oldest':
-        return new Date(a.updatedAt) - new Date(b.updatedAt);
-      case 'alphabetical':
-        return (a.title || 'Untitled').localeCompare(b.title || 'Untitled');
-      case 'recent':
-      default:
-        return new Date(b.updatedAt) - new Date(a.updatedAt);
-    }
-  });
+  const sortedDrawings = drawings
+    .filter(drawing => {
+      if (!searchQuery.trim()) return true;
+      const query = searchQuery.toLowerCase();
+      return (drawing.title || 'Untitled').toLowerCase().includes(query);
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'oldest':
+          return new Date(a.updatedAt) - new Date(b.updatedAt);
+        case 'alphabetical':
+          return (a.title || 'Untitled').localeCompare(b.title || 'Untitled');
+        case 'recent':
+        default:
+          return new Date(b.updatedAt) - new Date(a.updatedAt);
+      }
+    });
 
   // -------------------------------------------------------------------------
   // Drawing Operations
@@ -570,8 +577,15 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
               >
                 <Icon name="chevronLeft" size={16} />
               </button>
-              <span className="sidebar-title">Sketches</span>
-              <span className="sidebar-count">{drawings.length}</span>
+              <div className="sidebar-search">
+                <Icon name="search" size={14} />
+                <input
+                  type="text"
+                  placeholder="Search sketches..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
               <div className="drawings-sort-container" ref={sortDropdownRef}>
                 <button 
                   className={`drawings-sort-btn ${showSortDropdown ? 'active' : ''}`}

@@ -65,6 +65,9 @@ body {
 .clear-canvas-btn .icon-svg,
 .backlog-expand-btn .icon-svg,
 .backlog-collapse-btn .icon-svg,
+.notes-search .icon-svg,
+.sidebar-search .icon-svg,
+.backlog-search .icon-svg,
 .mode-icon .icon-svg,
 .empty-state .icon .icon-svg {
   margin-right: 0;
@@ -400,12 +403,12 @@ body {
 }
 
 .mode-info-btn:hover {
-  color: var(--accent);
+  color: var(--accent-primary);
   background: rgba(0, 212, 170, 0.1);
 }
 
 .mode-info-btn.active {
-  color: var(--accent);
+  color: var(--accent-primary);
   background: rgba(0, 212, 170, 0.15);
 }
 
@@ -946,10 +949,6 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-.mode-btn.active .mode-icon {
-  color: var(--accent-primary);
-}
-
 .mode-icon {
   display: flex;
   align-items: center;
@@ -961,6 +960,7 @@ body {
 }
 
 .mode-btn.active .mode-icon {
+  color: var(--accent-primary);
   background: linear-gradient(135deg, rgba(0, 212, 170, 0.2) 0%, rgba(124, 58, 237, 0.2) 100%);
 }
 
@@ -1983,6 +1983,14 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
+.backlog-header .backlog-search {
+  min-width: 0;
+}
+
+.backlog-header .backlog-search input {
+  min-width: 0;
+}
+
 .backlog-list {
   flex: 1;
   overflow-y: auto;
@@ -2078,8 +2086,9 @@ body {
 }
 
 .add-task-btn.small {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
 }
 
 /* Task Card */
@@ -2467,7 +2476,10 @@ body {
   border-bottom: 1px solid var(--border-color);
 }
 
-.notes-search {
+/* Shared search input styles */
+.notes-search,
+.sidebar-search,
+.backlog-search {
   flex: 1;
   display: flex;
   align-items: center;
@@ -2478,7 +2490,9 @@ body {
   border-radius: 8px;
 }
 
-.notes-search input {
+.notes-search input,
+.sidebar-search input,
+.backlog-search input {
   flex: 1;
   background: transparent;
   border: none;
@@ -2488,7 +2502,9 @@ body {
   outline: none;
 }
 
-.notes-search input::placeholder {
+.notes-search input::placeholder,
+.sidebar-search input::placeholder,
+.backlog-search input::placeholder {
   color: var(--text-muted);
 }
 
@@ -2813,6 +2829,15 @@ body {
   gap: 8px;
   padding: 10px 12px;
   border-bottom: 1px solid var(--border-color);
+  flex-wrap: nowrap;
+}
+
+.drawings-sidebar-header .sidebar-search {
+  min-width: 0;
+}
+
+.drawings-sidebar-header .sidebar-search input {
+  min-width: 0;
 }
 
 /* Sidebar Collapse Button (expanded state) */

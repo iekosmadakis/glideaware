@@ -242,7 +242,7 @@ const NoteEditor = forwardRef(function NoteEditor({ onToast }, ref) {
       <div className="notes-sidebar">
         <div className="notes-sidebar-header">
           <div className="notes-search">
-            <Icon name="info" size={14} />
+            <Icon name="search" size={14} />
             <input
               type="text"
               placeholder="Search notes..."
@@ -303,7 +303,7 @@ const NoteEditor = forwardRef(function NoteEditor({ onToast }, ref) {
           ))}
           {filteredNotes.length === 0 && (
             <div className="notes-empty">
-              {searchQuery ? 'No notes found' : 'No notes yet. Create one!'}
+              {searchQuery ? 'No notes found' : 'No notes yet'}
             </div>
           )}
         </div>

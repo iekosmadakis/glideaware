@@ -1124,6 +1124,36 @@ function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showFixesDropdown, showSettings, showVisualizeSettings, showModeInfo]);
 
+  // Update status message based on current app mode and sub-modes
+  useEffect(() => {
+    if (appMode === 'plan') {
+      if (planSubMode === 'tasks') {
+        setStatus({ type: 'ready', message: 'Ready to manage tasks' });
+      } else if (notesSubMode === 'docs') {
+        setStatus({ type: 'ready', message: 'Ready to take notes' });
+      } else {
+        setStatus({ type: 'ready', message: 'Ready to sketch' });
+      }
+    } else {
+      // Development mode - set appropriate status based on sub-mode
+      if (mode === 'json') {
+        if (jsonSubMode === 'diff') {
+          setStatus({ type: 'ready', message: 'Ready to compare' });
+        } else {
+          setStatus({ type: 'ready', message: 'Ready to format' });
+        }
+      } else {
+        if (jsSubMode === 'diff') {
+          setStatus({ type: 'ready', message: 'Ready to compare' });
+        } else if (jsSubMode === 'visualize') {
+          setStatus({ type: 'ready', message: 'Ready to visualize' });
+        } else {
+          setStatus({ type: 'ready', message: 'Ready to polish' });
+        }
+      }
+    }
+  }, [appMode, planSubMode, notesSubMode, mode, jsonSubMode, jsSubMode]);
+
   const editorOptions = {
     fontSize: 14,
     fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
@@ -1208,7 +1238,7 @@ function App() {
                   onClick={() => setPlanSubMode('notes')}
                   title="Notes & Sketches"
                 >
-                  <span className="mode-icon"><Icon name="sparkles" size={14} /></span>
+                  <span className="mode-icon"><Icon name="document" size={14} /></span>
                   <span className="mode-label">Notes</span>
                 </button>
               </div>
@@ -1221,14 +1251,14 @@ function App() {
                     onClick={() => setNotesSubMode('docs')}
                     title="Rich Text Notes"
                   >
-                    <Icon name="code" size={14} /> Docs
+                    <Icon name="document" size={14} /> Docs
                   </button>
                   <button
                     className={`sub-mode-btn ${notesSubMode === 'sketch' ? 'active' : ''}`}
                     onClick={() => setNotesSubMode('sketch')}
                     title="Drawing Canvas"
                   >
-                    <Icon name="flow" size={14} /> Sketch
+                    <Icon name="brush" size={14} /> Sketch
                   </button>
                 </div>
               )}
@@ -1341,7 +1371,9 @@ function App() {
                 }}
                 title={planSubMode === 'tasks' ? 'Create New Task' : (notesSubMode === 'docs' ? 'Create New Note' : 'Create New Sketch')}
               >
-                <span className="icon"><Icon name="sparkles" size={16} /></span>
+                <span className="icon">
+                  <Icon name={planSubMode === 'tasks' ? 'plus' : (notesSubMode === 'docs' ? 'pencil' : 'brush')} size={16} />
+                </span>
                 {planSubMode === 'tasks' ? 'New Task' : (notesSubMode === 'docs' ? 'New Note' : 'New Sketch')}
               </button>
             </>
@@ -2264,8 +2296,8 @@ function App() {
                     ? (planSubMode === 'tasks' 
                         ? <><Icon name="clipboard" size={14} /> Task Management</>
                         : (notesSubMode === 'docs' 
-                            ? <><Icon name="code" size={14} /> Notes & Docs</>
-                            : <><Icon name="flow" size={14} /> Sketches</>))
+                            ? <><Icon name="document" size={14} /> Notes & Docs</>
+                            : <><Icon name="brush" size={14} /> Sketches</>))
                     : mode === 'json' 
                       ? (jsonSubMode === 'diff' ? <><Icon name="compare" size={14} /> JSON Diff</> : <><Icon name="json" size={14} /> JSON Format</>)
                       : (jsSubMode === 'visualize' ? <><Icon name="flow" size={14} /> Flow Visualization</> : (jsSubMode === 'diff' ? <><Icon name="compare" size={14} /> Compare & Polish</> : <><Icon name="sparkles" size={14} /> Polish Mode</>))
