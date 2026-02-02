@@ -840,7 +840,7 @@ function App() {
     }
 
     setIsProcessing(true);
-    setStatus({ type: 'processing', message: 'Polishing...' });
+    setStatus({ type: 'processing', message: mode === 'json' ? 'Formatting...' : 'Polishing...' });
 
     try {
       // Use appropriate polisher based on mode
@@ -859,10 +859,10 @@ function App() {
         const changes = computeLineDiff(inputCode, result.output);
         setChangedLines(changes);
         
-        setStatus({ type: 'ready', message: `Polished with ${result.fixes.length} fixes` });
+        setStatus({ type: 'ready', message: mode === 'json' ? `Formatted with ${result.fixes.length} fixes` : `Polished with ${result.fixes.length} fixes` });
         
         if (result.fixes.length > 0) {
-          showToast(`${mode === 'json' ? 'JSON' : 'Code'} polished! ${result.fixes.length} fixes applied`, 'success');
+          showToast(`${mode === 'json' ? 'JSON formatted' : 'Code polished'}! ${result.fixes.length} fixes applied`, 'success');
         } else {
           showToast(`${mode === 'json' ? 'JSON' : 'Code'} formatted successfully!`, 'success');
         }
@@ -876,7 +876,7 @@ function App() {
         showToast(result.error, 'error');
       }
     } catch (error) {
-      setStatus({ type: 'error', message: 'Failed to polish' });
+      setStatus({ type: 'error', message: mode === 'json' ? 'Failed to format' : 'Failed to polish' });
       showToast(`Error: ${error.message}`, 'error');
     } finally {
       setIsProcessing(false);
@@ -1448,12 +1448,12 @@ function App() {
               {isProcessing ? (
                 <>
                   <div className="spinner" />
-                  Polishing...
+                  {mode === 'json' ? 'Formatting...' : 'Polishing...'}
                 </>
               ) : (
                 <>
                   <span className="icon"><Icon name="sparkles" size={16} /></span>
-                  Polish {mode === 'json' ? 'JSON' : 'Code'}
+                  {mode === 'json' ? 'Format JSON' : 'Polish Code'}
                 </>
               )}
             </button>
@@ -2079,7 +2079,7 @@ function App() {
               <div className="panel-header">
                 <div className="panel-title">
                   <span className="dot output" />
-                  Polished {mode === 'json' ? 'JSON' : 'Code'}
+                  {mode === 'json' ? 'Formatted JSON' : 'Polished Code'}
                   {(fixes.length > 0 || warnings.length > 0 || errors.length > 0) && (
                     <div className="fixes-dropdown-container" ref={fixesDropdownRef}>
                       <button 
@@ -2223,7 +2223,7 @@ function App() {
                     <h3>No output yet</h3>
                     <p>
                       {mode === 'json' 
-                        ? 'Paste your JSON on the left and click "Polish JSON" to see the formatted result here.'
+                        ? 'Paste your JSON on the left and click "Format JSON" to see the formatted result here.'
                         : 'Paste your ServiceNow code on the left and click "Polish Code" to see the formatted result here.'
                       }
                     </p>
