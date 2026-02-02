@@ -809,7 +809,7 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
           </>
         ) : (
           <div className="drawing-empty">
-            <Icon name="flow" size={48} />
+            <Icon name="brush" size={48} />
             <h3>No Sketch Selected</h3>
             <p>Select a sketch from the sidebar or create a new one</p>
           </div>

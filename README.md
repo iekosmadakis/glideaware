@@ -48,7 +48,7 @@ Canvas-based drawing tool for diagrams and visual notes:
 
 | Feature | Description |
 |---------|-------------|
-| **Drawing Tools** | Pen, Line, Rectangle, Ellipse, Arrow, Eraser |
+| **Drawing Tools** | Text, Pen, Line, Rectangle, Ellipse, Arrow, Eraser |
 | **Color Palette** | 9 preset colors |
 | **Stroke Widths** | 4 size options |
 | **Multiple Sketches** | Create and manage multiple drawings |

@@ -619,20 +619,6 @@ const icons = {
   ),
 
   /**
-   * Cursor/Pointer - Used for select tool
-   */
-  cursor: (
-    <path 
-      d="M4 4L10.5 20L13 13L20 10.5L4 4Z" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    />
-  ),
-
-  /**
    * Eraser - Used for eraser tool
    */
   eraser: (
