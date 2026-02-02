@@ -22,7 +22,7 @@ import {
  * Available drawing tools
  */
 const TOOLS = {
-  SELECT: 'select',
+  TEXT: 'text',
   PEN: 'pen',
   LINE: 'line',
   RECTANGLE: 'rectangle',
@@ -76,11 +76,13 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
   const [sortBy, setSortBy] = useState('recent'); // 'recent', 'oldest', 'alphabetical'
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [textInput, setTextInput] = useState({ show: false, x: 0, y: 0, value: '' });
   
   const canvasRef = useRef(null);
   const sortDropdownRef = useRef(null);
   const contextRef = useRef(null);
   const saveTimeoutRef = useRef(null);
+  const textInputRef = useRef(null);
 
   // -------------------------------------------------------------------------
   // Data Loading
@@ -283,32 +285,15 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
 
   /**
    * Redraws all elements on canvas
+   * Note: Grid is rendered via CSS background, not on canvas
    */
   const redrawCanvas = useCallback(() => {
     const ctx = contextRef.current;
     const canvas = canvasRef.current;
     if (!ctx || !canvas || !selectedDrawing) return;
 
-    // Clear canvas
-    ctx.fillStyle = '#1a1a2e';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw grid
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-    ctx.lineWidth = 1;
-    const gridSize = 20;
-    for (let x = 0; x < canvas.width; x += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, canvas.height);
-      ctx.stroke();
-    }
-    for (let y = 0; y < canvas.height; y += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(canvas.width, y);
-      ctx.stroke();
-    }
+    // Clear canvas (transparent so CSS grid shows through)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw elements
     selectedDrawing.elements?.forEach(element => {
@@ -383,6 +368,13 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
         );
         ctx.stroke();
         break;
+
+      case 'text':
+        // Draw text
+        ctx.font = `${element.fontSize || 16}px 'Inter', sans-serif`;
+        ctx.fillStyle = element.color;
+        ctx.fillText(element.text, element.x, element.y);
+        break;
     }
   };
 
@@ -402,9 +394,18 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
    * Mouse down handler
    */
   const handleMouseDown = (e) => {
-    if (!selectedDrawing || tool === TOOLS.SELECT) return;
+    if (!selectedDrawing) return;
     
     const pos = getMousePos(e);
+    
+    // Handle text tool - show input at click position
+    if (tool === TOOLS.TEXT) {
+      setTextInput({ show: true, x: pos.x, y: pos.y, value: '' });
+      // Focus the input after it renders
+      setTimeout(() => textInputRef.current?.focus(), 10);
+      return;
+    }
+    
     setIsDrawing(true);
 
     if (tool === TOOLS.PEN || tool === TOOLS.ERASER) {
@@ -434,14 +435,18 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
       ctx.stroke();
       setCurrentPath(prev => [...prev, pos]);
     } else if (tool === TOOLS.ERASER) {
-      // Erase (draw with background color)
-      ctx.strokeStyle = '#1a1a2e';
+      // Erase by making pixels transparent (reveals CSS grid behind)
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.strokeStyle = 'rgba(0,0,0,1)';
       ctx.lineWidth = strokeWidth * 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
       ctx.beginPath();
       const lastPoint = currentPath[currentPath.length - 1];
       ctx.moveTo(lastPoint.x, lastPoint.y);
       ctx.lineTo(pos.x, pos.y);
       ctx.stroke();
+      ctx.globalCompositeOperation = 'source-over'; // Reset to normal
       setCurrentPath(prev => [...prev, pos]);
     } else {
       // Shape preview - redraw and show preview
@@ -549,6 +554,41 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
     saveDrawing([]);
     redrawCanvas();
   }, [selectedDrawing, saveDrawing, redrawCanvas]);
+
+  /**
+   * Handles text input submission
+   */
+  const handleTextSubmit = useCallback(() => {
+    if (!textInput.value.trim() || !selectedDrawing) {
+      setTextInput({ show: false, x: 0, y: 0, value: '' });
+      return;
+    }
+
+    const newElement = {
+      type: 'text',
+      x: textInput.x,
+      y: textInput.y,
+      text: textInput.value,
+      color,
+      fontSize: strokeWidth * 4 // Scale font size with stroke width
+    };
+
+    const newElements = [...(selectedDrawing.elements || []), newElement];
+    setSelectedDrawing(prev => ({ ...prev, elements: newElements }));
+    saveDrawing(newElements);
+    setTextInput({ show: false, x: 0, y: 0, value: '' });
+  }, [textInput, selectedDrawing, color, strokeWidth, saveDrawing]);
+
+  /**
+   * Handles text input key down (Enter to submit, Escape to cancel)
+   */
+  const handleTextKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleTextSubmit();
+    } else if (e.key === 'Escape') {
+      setTextInput({ show: false, x: 0, y: 0, value: '' });
+    }
+  };
 
   // -------------------------------------------------------------------------
   // Render
@@ -678,7 +718,7 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
 
               <div className="toolbar-section tools">
                 {Object.entries({
-                  [TOOLS.SELECT]: 'Select',
+                  [TOOLS.TEXT]: 'Text',
                   [TOOLS.PEN]: 'Pen',
                   [TOOLS.LINE]: 'Line',
                   [TOOLS.RECTANGLE]: 'Rectangle',
@@ -692,13 +732,13 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
                     onClick={() => setTool(t)}
                     title={label}
                   >
-                    {t === TOOLS.SELECT && <Icon name="compare" size={14} />}
-                    {t === TOOLS.PEN && <Icon name="sparkles" size={14} />}
+                    {t === TOOLS.TEXT && <Icon name="text" size={14} />}
+                    {t === TOOLS.PEN && <Icon name="pencil" size={14} />}
                     {t === TOOLS.LINE && '—'}
                     {t === TOOLS.RECTANGLE && '□'}
                     {t === TOOLS.ELLIPSE && '○'}
                     {t === TOOLS.ARROW && '→'}
-                    {t === TOOLS.ERASER && <Icon name="trash" size={14} />}
+                    {t === TOOLS.ERASER && <Icon name="eraser" size={14} />}
                   </button>
                 ))}
               </div>
@@ -746,13 +786,32 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
               />
+              {/* Text input overlay */}
+              {textInput.show && (
+                <input
+                  ref={textInputRef}
+                  type="text"
+                  className="canvas-text-input"
+                  style={{
+                    left: textInput.x,
+                    top: textInput.y - 10,
+                    color: color,
+                    fontSize: `${strokeWidth * 4}px`
+                  }}
+                  value={textInput.value}
+                  onChange={(e) => setTextInput(prev => ({ ...prev, value: e.target.value }))}
+                  onKeyDown={handleTextKeyDown}
+                  onBlur={handleTextSubmit}
+                  placeholder="Type text..."
+                />
+              )}
             </div>
           </>
         ) : (
           <div className="drawing-empty">
             <Icon name="flow" size={48} />
             <h3>No Sketch Selected</h3>
-            <p>Select a sketch or create a new one</p>
+            <p>Select a sketch from the sidebar or create a new one</p>
           </div>
         )}
       </div>

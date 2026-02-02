@@ -616,6 +616,69 @@ const icons = {
         strokeLinejoin="round"
       />
     </>
+  ),
+
+  /**
+   * Cursor/Pointer - Used for select tool
+   */
+  cursor: (
+    <path 
+      d="M4 4L10.5 20L13 13L20 10.5L4 4Z" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+  ),
+
+  /**
+   * Eraser - Used for eraser tool
+   */
+  eraser: (
+    <>
+      <path 
+        d="M20 20H7L3 16C2.4 15.4 2.4 14.6 3 14L13 4C13.6 3.4 14.4 3.4 15 4L21 10C21.6 10.6 21.6 11.4 21 12L11 22" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      />
+      <path 
+        d="M18 13L11 6" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"
+      />
+    </>
+  ),
+
+  /**
+   * Text - Used for text tool
+   */
+  text: (
+    <>
+      <path 
+        d="M4 7V4H20V7" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      />
+      <path 
+        d="M12 4V20" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"
+      />
+      <path 
+        d="M8 20H16" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round"
+      />
+    </>
   )
 };
 

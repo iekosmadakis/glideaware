@@ -3139,6 +3139,11 @@ body {
   flex: 1;
   position: relative;
   overflow: hidden;
+  background-color: #1a1a2e;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .drawing-canvas {
@@ -3146,6 +3151,24 @@ body {
   width: 100%;
   height: 100%;
   cursor: crosshair;
+  background: transparent;
+}
+
+.canvas-text-input {
+  position: absolute;
+  background: transparent;
+  border: 1px dashed var(--accent-primary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  min-width: 100px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  z-index: 10;
+}
+
+.canvas-text-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 
 .drawing-empty {
