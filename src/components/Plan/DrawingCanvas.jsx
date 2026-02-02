@@ -668,7 +668,7 @@ const DrawingCanvas = forwardRef(function DrawingCanvas({ onToast }, ref) {
                   className={`drawing-list-item ${selectedDrawing?.id === drawing.id ? 'selected' : ''}`}
                   onClick={() => setSelectedDrawing(drawing)}
                 >
-                  <Icon name="flow" size={14} />
+                  <Icon name="brush" size={14} />
                   <span className="drawing-title">{drawing.title}</span>
                   <button
                     className="delete-drawing-btn"
