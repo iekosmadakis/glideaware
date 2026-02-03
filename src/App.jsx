@@ -1022,6 +1022,27 @@ function App() {
     }
   }, [jsSubMode]);
 
+  // Handle app mode toggle (Plan/Develop)
+  const handleAppModeToggle = useCallback((newMode) => {
+    if (newMode === appMode) return;
+    setAppMode(newMode);
+    showToast(`Switched to ${newMode === 'plan' ? 'Plan' : 'Develop'} mode`, 'success');
+  }, [appMode, showToast]);
+
+  // Handle plan sub-mode toggle (Tasks/Notes)
+  const handlePlanSubModeToggle = useCallback((newSubMode) => {
+    if (newSubMode === planSubMode) return;
+    setPlanSubMode(newSubMode);
+    showToast(`Switched to ${newSubMode === 'tasks' ? 'Tasks' : 'Notes'}`, 'success');
+  }, [planSubMode, showToast]);
+
+  // Handle notes sub-mode toggle (Docs/Sketch)
+  const handleNotesSubModeToggle = useCallback((newSubMode) => {
+    if (newSubMode === notesSubMode) return;
+    setNotesSubMode(newSubMode);
+    showToast(`Switched to ${newSubMode === 'docs' ? 'Docs' : 'Sketch'}`, 'success');
+  }, [notesSubMode, showToast]);
+
   // Configure Monaco editor
   const handleEditorMount = useCallback((editor, monaco, isInput) => {
     // Store monaco reference
@@ -1205,7 +1226,7 @@ function App() {
           <div className="app-mode-toggle">
             <button
               className={`app-mode-btn ${appMode === 'plan' ? 'active' : ''}`}
-              onClick={() => setAppMode('plan')}
+              onClick={() => handleAppModeToggle('plan')}
               title="Plan Mode"
             >
               <Icon name="plan" size={16} />
@@ -1213,7 +1234,7 @@ function App() {
             </button>
             <button
               className={`app-mode-btn ${appMode === 'development' ? 'active' : ''}`}
-              onClick={() => setAppMode('development')}
+              onClick={() => handleAppModeToggle('development')}
               title="Development Mode"
             >
               <Icon name="terminal" size={16} />
@@ -1229,7 +1250,7 @@ function App() {
               <div className="mode-toggle">
                 <button
                   className={`mode-btn ${planSubMode === 'tasks' ? 'active' : ''}`}
-                  onClick={() => setPlanSubMode('tasks')}
+                  onClick={() => handlePlanSubModeToggle('tasks')}
                   title="Tasks - Kanban Board"
                 >
                   <span className="mode-icon"><Icon name="clipboard" size={14} /></span>
@@ -1237,7 +1258,7 @@ function App() {
                 </button>
                 <button
                   className={`mode-btn ${planSubMode === 'notes' ? 'active' : ''}`}
-                  onClick={() => setPlanSubMode('notes')}
+                  onClick={() => handlePlanSubModeToggle('notes')}
                   title="Notes & Sketches"
                 >
                   <span className="mode-icon"><Icon name="document" size={14} /></span>
@@ -1250,14 +1271,14 @@ function App() {
                 <div className="sub-mode-toggle">
                   <button
                     className={`sub-mode-btn ${notesSubMode === 'docs' ? 'active' : ''}`}
-                    onClick={() => setNotesSubMode('docs')}
+                    onClick={() => handleNotesSubModeToggle('docs')}
                     title="Rich Text Notes"
                   >
                     <Icon name="document" size={14} /> Docs
                   </button>
                   <button
                     className={`sub-mode-btn ${notesSubMode === 'sketch' ? 'active' : ''}`}
-                    onClick={() => setNotesSubMode('sketch')}
+                    onClick={() => handleNotesSubModeToggle('sketch')}
                     title="Drawing Canvas"
                   >
                     <Icon name="brush" size={14} /> Sketch
