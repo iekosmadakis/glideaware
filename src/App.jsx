@@ -33,6 +33,13 @@ import * as htmlFormatter from 'jsondiffpatch/formatters/html';
 import 'jsondiffpatch/formatters/styles/html.css';
 
 // =============================================================================
+// CONSTANTS
+// =============================================================================
+
+/** Toast notification display duration in milliseconds */
+const TOAST_DURATION = 2500;
+
+// =============================================================================
 // SAMPLE CODE
 // =============================================================================
 const SAMPLE_JS_CODE = `// Business Rule: Auto-assign incidents
@@ -321,7 +328,7 @@ function App() {
   // Toast notification
   const showToast = useCallback((message, type = 'success') => {
     setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), TOAST_DURATION);
   }, []);
 
   // -------------------------------------------------------------------------
