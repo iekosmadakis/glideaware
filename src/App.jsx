@@ -1003,10 +1003,12 @@ function App() {
     setJsonSubMode(newSubMode);
     if (newSubMode === 'diff') {
       setStatus({ type: 'ready', message: 'Ready to compare' });
+      showToast('Switched to Compare', 'success');
     } else {
-      setStatus({ type: 'ready', message: 'Ready to polish' });
+      setStatus({ type: 'ready', message: 'Ready to format' });
+      showToast('Switched to Format', 'success');
     }
-  }, [jsonSubMode]);
+  }, [jsonSubMode, showToast]);
 
   // Handle JavaScript sub-mode toggle
   const handleJsSubModeToggle = useCallback((newSubMode) => {
@@ -1015,12 +1017,15 @@ function App() {
     setJsSubMode(newSubMode);
     if (newSubMode === 'diff') {
       setStatus({ type: 'ready', message: 'Ready to compare' });
+      showToast('Switched to Compare', 'success');
     } else if (newSubMode === 'visualize') {
       setStatus({ type: 'ready', message: 'Ready to visualize' });
+      showToast('Switched to Visualize', 'success');
     } else {
       setStatus({ type: 'ready', message: 'Ready to polish' });
+      showToast('Switched to Polish', 'success');
     }
-  }, [jsSubMode]);
+  }, [jsSubMode, showToast]);
 
   // Handle app mode toggle (Plan/Develop)
   const handleAppModeToggle = useCallback((newMode) => {
