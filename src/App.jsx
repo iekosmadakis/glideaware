@@ -1407,7 +1407,7 @@ function App() {
                 title={planSubMode === 'tasks' ? 'Create New Task' : (notesSubMode === 'docs' ? 'Create New Note' : 'Create New Sketch')}
               >
                 <span className="icon">
-                  <Icon name={planSubMode === 'tasks' ? 'plus' : (notesSubMode === 'docs' ? 'pencil' : 'brush')} size={16} />
+                  <Icon name={planSubMode === 'tasks' ? 'plus' : (notesSubMode === 'docs' ? 'document' : 'brush')} size={16} />
                 </span>
                 {planSubMode === 'tasks' ? 'New Task' : (notesSubMode === 'docs' ? 'New Note' : 'New Sketch')}
               </button>
