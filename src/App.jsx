@@ -324,11 +324,19 @@ function App() {
   const [diffHighlightEnabled, setDiffHighlightEnabled] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const settingsDropdownRef = useRef(null);
+  const toastTimeoutRef = useRef(null);
 
   // Toast notification
   const showToast = useCallback((message, type = 'success') => {
+    // Clear any existing timeout to prevent premature hiding
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
     setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), TOAST_DURATION);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToast({ show: false, message: '', type: 'success' });
+      toastTimeoutRef.current = null;
+    }, TOAST_DURATION);
   }, []);
 
   // -------------------------------------------------------------------------
