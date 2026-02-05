@@ -763,6 +763,20 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visualizeViewMode]);
 
+  // Copy revised JS code to clipboard
+  const handleCopyJsDiff = useCallback(async () => {
+    if (!diffRightJs.trim()) {
+      showToast('No revised code to copy', 'error');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(diffRightJs);
+      showToast('Revised code copied to clipboard!', 'success');
+    } catch (err) {
+      showToast('Failed to copy', 'error');
+    }
+  }, [diffRightJs, showToast]);
+
   // Download both JS diff files
   const handleDownloadJsDiff = useCallback(() => {
     if (!diffLeftJs.trim() && !diffRightJs.trim()) {
@@ -1877,6 +1891,13 @@ function App() {
                 <div className="panel-actions">
                   <button className="panel-btn" onClick={handleLoadJsDiffSample}>
                     <Icon name="clipboard" size={14} /> Load Sample
+                  </button>
+                  <button 
+                    className="panel-btn" 
+                    onClick={handleCopyJsDiff}
+                    disabled={!diffRightJs.trim()}
+                  >
+                    <Icon name="copy" size={14} /> Copy
                   </button>
                   <button 
                     className="panel-btn" 
