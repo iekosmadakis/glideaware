@@ -76,6 +76,7 @@ const TaskBoard = forwardRef(function TaskBoard({ onToast }, ref) {
   const [dragOverColumn, setDragOverColumn] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [backlogSearchQuery, setBacklogSearchQuery] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null, title: '' });
   const modalRef = useRef(null);
 
   // -------------------------------------------------------------------------
@@ -157,9 +158,19 @@ const TaskBoard = forwardRef(function TaskBoard({ onToast }, ref) {
   }, [onToast]);
 
   /**
-   * Deletes a task
+   * Shows delete confirmation dialog
    */
-  const handleDeleteTask = useCallback(async (id) => {
+  const confirmDeleteTask = useCallback((id, title) => {
+    setDeleteConfirm({ show: true, id, title: title || 'Untitled Task' });
+  }, []);
+
+  /**
+   * Deletes a task after confirmation
+   */
+  const handleDeleteTask = useCallback(async () => {
+    const { id } = deleteConfirm;
+    if (!id) return;
+
     try {
       await deleteTask(id);
       setTasks(prev => prev.filter(t => t.id !== id));
@@ -168,8 +179,10 @@ const TaskBoard = forwardRef(function TaskBoard({ onToast }, ref) {
       onToast?.('Task deleted', 'success');
     } catch (error) {
       onToast?.('Failed to delete task', 'error');
+    } finally {
+      setDeleteConfirm({ show: false, id: null, title: '' });
     }
-  }, [onToast]);
+  }, [deleteConfirm, onToast]);
 
   // -------------------------------------------------------------------------
   // Drag and Drop
@@ -357,9 +370,36 @@ const TaskBoard = forwardRef(function TaskBoard({ onToast }, ref) {
             <TaskEditForm
               task={editingTask}
               onUpdate={handleUpdateTask}
-              onDelete={handleDeleteTask}
+              onDelete={confirmDeleteTask}
               onClose={() => { setShowTaskModal(false); setEditingTask(null); }}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.show && (
+        <div className="delete-confirm-overlay" onClick={() => setDeleteConfirm({ show: false, id: null, title: '' })}>
+          <div className="delete-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="delete-confirm-icon">
+              <Icon name="warning" size={32} />
+            </div>
+            <h3>Delete Task</h3>
+            <p>Are you sure you want to delete &quot;{deleteConfirm.title}&quot;? This action cannot be undone.</p>
+            <div className="delete-confirm-actions">
+              <button 
+                className="cancel-btn"
+                onClick={() => setDeleteConfirm({ show: false, id: null, title: '' })}
+              >
+                Cancel
+              </button>
+              <button 
+                className="confirm-delete-btn"
+                onClick={handleDeleteTask}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -576,7 +616,7 @@ function TaskEditForm({ task, onUpdate, onDelete, onClose }) {
       </div>
 
       <div className="task-edit-footer">
-        <button className="delete-task-btn" onClick={() => onDelete(task.id)}>
+        <button className="delete-task-btn" onClick={() => onDelete(task.id, task.title)}>
           <Icon name="trash" size={14} />
           Delete Task
         </button>
