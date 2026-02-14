@@ -324,6 +324,8 @@ function App() {
   const [diffHighlightEnabled, setDiffHighlightEnabled] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const settingsDropdownRef = useRef(null);
+  const diffEditorRef = useRef(null);
+  const diffSyncingRef = useRef(false);
 
   // Toast notification
   const toastTimeoutRef = useRef(null);
@@ -474,6 +476,20 @@ function App() {
     showToast('JSONs swapped', 'success');
   }, [diffLeftJson, diffRightJson, showToast]);
 
+  // Sets DiffEditor content imperatively (avoids cursor reset from prop changes)
+  const setDiffEditorValues = useCallback((left, right) => {
+    diffSyncingRef.current = true;
+    if (diffEditorRef.current) {
+      const orig = diffEditorRef.current.getOriginalEditor();
+      const mod = diffEditorRef.current.getModifiedEditor();
+      if (left !== undefined) orig.setValue(left);
+      if (right !== undefined) mod.setValue(right);
+    }
+    if (left !== undefined) setDiffLeftJs(left);
+    if (right !== undefined) setDiffRightJs(right);
+    diffSyncingRef.current = false;
+  }, []);
+
   // Polish the right side code in diff mode
   const handlePolishDiffRight = useCallback(async () => {
     if (!diffRightJs.trim()) {
@@ -489,7 +505,7 @@ function App() {
       const result = await polishCode(diffRightJs);
 
       if (result.success) {
-        setDiffRightJs(result.output);
+        setDiffEditorValues(undefined, result.output);
         setFixes(result.fixes);
         setWarnings(result.warnings || []);
         setErrors(result.errors || []);
@@ -521,34 +537,32 @@ function App() {
     } finally {
       setIsProcessing(false);
     }
-  }, [diffRightJs, showToast]);
+  }, [diffRightJs, setDiffEditorValues, showToast]);
 
   // Load sample JS diff code
   const handleLoadJsDiffSample = useCallback(() => {
-    setDiffLeftJs(SAMPLE_JS_DIFF_LEFT);
-    setDiffRightJs(SAMPLE_JS_DIFF_RIGHT);
+    setDiffEditorValues(SAMPLE_JS_DIFF_LEFT, SAMPLE_JS_DIFF_RIGHT);
     showToast('Sample code loaded', 'success');
-  }, [showToast]);
+  }, [setDiffEditorValues, showToast]);
 
   // Clear JS diff
   const handleClearJsDiff = useCallback(() => {
-    setDiffLeftJs('');
-    setDiffRightJs('');
+    setDiffEditorValues('', '');
     setFixes([]);
     setWarnings([]);
     setErrors([]);
     setMetrics(null);
     setChangedLines([]);
     setStatus({ type: 'ready', message: 'Ready' });
-  }, []);
+  }, [setDiffEditorValues]);
 
   // Swap left and right JS
   const handleSwapJs = useCallback(() => {
-    const temp = diffLeftJs;
-    setDiffLeftJs(diffRightJs);
-    setDiffRightJs(temp);
+    const left = diffLeftJs;
+    const right = diffRightJs;
+    setDiffEditorValues(right, left);
     showToast('Code swapped', 'success');
-  }, [diffLeftJs, diffRightJs, showToast]);
+  }, [diffLeftJs, diffRightJs, setDiffEditorValues, showToast]);
 
   // Custom node types for React Flow
   const nodeTypes = useMemo(() => ({
@@ -1019,11 +1033,10 @@ function App() {
     setDiffRightJson('');
     setDiffResult(null);
     setDiffStats(null);
-    setDiffLeftJs('');
-    setDiffRightJs('');
+    setDiffEditorValues('', '');
     setStatus({ type: 'ready', message: 'Ready to polish' });
     showToast(`Switched to ${newMode === 'json' ? 'JSON' : 'JavaScript'} mode`, 'success');
-  }, [mode, showToast]);
+  }, [mode, setDiffEditorValues, showToast]);
 
   // Handle JSON sub-mode toggle
   const handleJsonSubModeToggle = useCallback((newSubMode) => {
@@ -1960,24 +1973,25 @@ function App() {
               <DiffEditor
                 height="100%"
                 language="javascript"
-                original={diffLeftJs}
-                modified={diffRightJs}
+                original=""
+                modified=""
                 theme="vs-dark"
                 onMount={(editor, monaco) => {
                   // Apply custom theme
                   monaco.editor.defineTheme('sn-dark', customTheme);
                   monaco.editor.setTheme('sn-dark');
                   
-                  // Track content changes for both editors
+                  diffEditorRef.current = editor;
                   const originalEditor = editor.getOriginalEditor();
                   const modifiedEditor = editor.getModifiedEditor();
-                  
+
+                  // Sync state from editor changes (typing only, skip imperative updates)
                   originalEditor.onDidChangeModelContent(() => {
-                    setDiffLeftJs(originalEditor.getValue());
+                    if (!diffSyncingRef.current) setDiffLeftJs(originalEditor.getValue());
                   });
                   
                   modifiedEditor.onDidChangeModelContent(() => {
-                    setDiffRightJs(modifiedEditor.getValue());
+                    if (!diffSyncingRef.current) setDiffRightJs(modifiedEditor.getValue());
                   });
                 }}
                 options={{
