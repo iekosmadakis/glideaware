@@ -299,7 +299,7 @@ function App() {
   const [outputCode, setOutputCode] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [status, setStatus] = useState({ type: 'ready', message: 'Ready to polish' });
-  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [toast, setToast] = useState({ show: false, messages: [], type: 'success' });
   const [fixes, setFixes] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [errors, setErrors] = useState([]);
@@ -336,16 +336,16 @@ function App() {
   const diffEditorRef = useRef(null);
   const diffSyncingRef = useRef(false);
 
-  // Toast notification
+  // Toast notification (supports single string or array of messages)
   const toastTimeoutRef = useRef(null);
   const showToast = useCallback((message, type = 'success') => {
-    // Clear any existing timeout to prevent premature hiding
     if (toastTimeoutRef.current) {
       clearTimeout(toastTimeoutRef.current);
     }
-    setToast({ show: true, message, type });
+    const messages = Array.isArray(message) ? message : [message];
+    setToast({ show: true, messages, type });
     toastTimeoutRef.current = setTimeout(() => {
-      setToast({ show: false, message: '', type: 'success' });
+      setToast({ show: false, messages: [], type: 'success' });
       toastTimeoutRef.current = null;
     }, TOAST_DURATION);
   }, []);
@@ -510,7 +510,8 @@ function App() {
     setStatus({ type: 'processing', message: 'Polishing...' });
 
     try {
-      let totalFixes = 0;
+      let fixesCountA = 0;
+      let fixesCountB = 0;
       let hasErrors = false;
 
       // Polish Code A (left panel)
@@ -524,7 +525,7 @@ function App() {
           setErrorsA(resultA.errors || []);
           setMetricsA(resultA.metrics);
           setChangedLinesA(computeLineDiff(originalA, resultA.output));
-          totalFixes += resultA.fixes.length;
+          fixesCountA = resultA.fixes.length;
         } else {
           setFixesA(resultA.fixes || []);
           setWarningsA(resultA.warnings || []);
@@ -546,7 +547,7 @@ function App() {
           setErrors(resultB.errors || []);
           setMetrics(resultB.metrics);
           setChangedLines(computeLineDiff(originalB, resultB.output));
-          totalFixes += resultB.fixes.length;
+          fixesCountB = resultB.fixes.length;
         } else {
           setFixes(resultB.fixes || []);
           setWarnings(resultB.warnings || []);
@@ -560,12 +561,21 @@ function App() {
       if (hasErrors) {
         setStatus({ type: 'error', message: 'Errors found' });
         showToast('Some code has errors', 'error');
-      } else if (totalFixes > 0) {
-        setStatus({ type: 'ready', message: `Polished with ${totalFixes} total fixes` });
-        showToast(`Both codes polished! ${totalFixes} fixes applied`, 'success');
       } else {
-        setStatus({ type: 'ready', message: 'Both codes formatted' });
-        showToast('Both codes formatted successfully!', 'success');
+        setStatus({ type: 'ready', message: 'Both codes polished' });
+
+        const messages = [];
+        if (diffLeftJs.trim()) {
+          messages.push(fixesCountA > 0
+            ? `Code A polished! ${fixesCountA} ${fixesCountA === 1 ? 'fix' : 'fixes'} applied`
+            : 'Code A formatted successfully!');
+        }
+        if (diffRightJs.trim()) {
+          messages.push(fixesCountB > 0
+            ? `Code B polished! ${fixesCountB} ${fixesCountB === 1 ? 'fix' : 'fixes'} applied`
+            : 'Code B formatted successfully!');
+        }
+        showToast(messages, 'success');
       }
     } catch (error) {
       setStatus({ type: 'error', message: 'Failed to polish' });
@@ -958,10 +968,11 @@ function App() {
         const changes = computeLineDiff(inputCode, result.output);
         setChangedLines(changes);
         
-        setStatus({ type: 'ready', message: mode === 'json' ? `Formatted with ${result.fixes.length} fixes` : `Polished with ${result.fixes.length} fixes` });
+        const fixWord = result.fixes.length === 1 ? 'fix' : 'fixes';
+        setStatus({ type: 'ready', message: mode === 'json' ? `Formatted with ${result.fixes.length} ${fixWord}` : `Polished with ${result.fixes.length} ${fixWord}` });
         
         if (result.fixes.length > 0) {
-          showToast(`${mode === 'json' ? 'JSON formatted' : 'Code polished'}! ${result.fixes.length} fixes applied`, 'success');
+          showToast(`${mode === 'json' ? 'JSON formatted' : 'Code polished'}! ${result.fixes.length} ${fixWord} applied`, 'success');
         } else {
           showToast(`${mode === 'json' ? 'JSON' : 'Code'} formatted successfully!`, 'success');
         }
@@ -1883,7 +1894,7 @@ function App() {
                         onClick={() => setShowFixesDropdownA(!showFixesDropdownA)}
                       >
                         <span className="fixes-badge-icon"><Icon name="check" size={12} /></span>
-                        <span>{fixesA.length} fixes</span>
+                        <span>{fixesA.length} {fixesA.length === 1 ? 'fix' : 'fixes'}</span>
                         {errorsA.length > 0 && (
                           <span className="error-count"><Icon name="x" size={10} /> {errorsA.length}</span>
                         )}
@@ -1965,7 +1976,7 @@ function App() {
                         onClick={() => setShowFixesDropdown(!showFixesDropdown)}
                       >
                         <span className="fixes-badge-icon"><Icon name="check" size={12} /></span>
-                        <span>{fixes.length} fixes</span>
+                        <span>{fixes.length} {fixes.length === 1 ? 'fix' : 'fixes'}</span>
                         {errors.length > 0 && (
                           <span className="error-count"><Icon name="x" size={10} /> {errors.length}</span>
                         )}
@@ -2296,7 +2307,7 @@ function App() {
                         onClick={() => setShowFixesDropdown(!showFixesDropdown)}
                       >
                         <span className="fixes-badge-icon"><Icon name="check" size={12} /></span>
-                        <span>{fixes.length} fixes</span>
+                        <span>{fixes.length} {fixes.length === 1 ? 'fix' : 'fixes'}</span>
                         {errors.length > 0 && (
                           <span className="error-count"><Icon name="x" size={10} /> {errors.length}</span>
                         )}
@@ -2447,19 +2458,54 @@ function App() {
       {/* Status Bar */}
       <footer className="status-bar">
         <div className="status-left">
-          <div className="status-item">
-            <span className={`status-dot ${status.type}`} />
-            <span>{status.message}</span>
-          </div>
-          {/* Show before→after metrics only in Polish/Compare modes (where transformation happens) */}
-          {metrics && jsSubMode !== 'visualize' && (
+          {/* Per-panel status in Compare mode */}
+          {jsSubMode === 'diff' && (metricsA || metrics) ? (
+            <>
+              {metricsA && (
+                <>
+                  <div className="status-item">
+                    <span className="status-dot ready" />
+                    Code A polished with {fixesA.length} {fixesA.length === 1 ? 'fix' : 'fixes'}
+                  </div>
+                  <div className="status-item">
+                    Lines: {metricsA.originalLines} → {metricsA.formattedLines}
+                  </div>
+                  <div className="status-item">
+                    Chars: {metricsA.originalChars} → {metricsA.formattedChars}
+                  </div>
+                </>
+              )}
+              {metrics && (
+                <>
+                  <div className="status-item status-separator">
+                    <span className="status-dot ready" />
+                    Code B polished with {fixes.length} {fixes.length === 1 ? 'fix' : 'fixes'}
+                  </div>
+                  <div className="status-item">
+                    Lines: {metrics.originalLines} → {metrics.formattedLines}
+                  </div>
+                  <div className="status-item">
+                    Chars: {metrics.originalChars} → {metrics.formattedChars}
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
             <>
               <div className="status-item">
-                Lines: {metrics.originalLines} → {metrics.formattedLines}
+                <span className={`status-dot ${status.type}`} />
+                <span>{status.message}</span>
               </div>
-              <div className="status-item">
-                Chars: {metrics.originalChars} → {metrics.formattedChars}
-              </div>
+              {metrics && jsSubMode !== 'visualize' && (
+                <>
+                  <div className="status-item">
+                    Lines: {metrics.originalLines} → {metrics.formattedLines}
+                  </div>
+                  <div className="status-item">
+                    Chars: {metrics.originalChars} → {metrics.formattedChars}
+                  </div>
+                </>
+              )}
             </>
           )}
           {/* Show simple stats in Visualize mode */}
@@ -2707,7 +2753,9 @@ function App() {
 
       {/* Toast Notification */}
       <div className={`toast ${toast.show ? 'show' : ''} ${toast.type}`}>
-        {toast.message}
+        {toast.messages.map((msg, i) => (
+          <div key={i} className="toast-line">{msg}</div>
+        ))}
       </div>
     </div>
   );
