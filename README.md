@@ -238,7 +238,7 @@ GlideAware Studio uses a **two-pass approach** for typo detection:
 
 ### ⚖️ JSON Compare
 Compare two JSON objects and visualize their differences:
-- **Side-by-side editors** for original and modified JSON
+- **Side-by-side editors** for left and right JSON
 - **Visual diff output** with color-coded changes
 - **Change statistics** showing additions, deletions, and modifications
 - **Swap button** to quickly reverse comparison direction
@@ -251,9 +251,9 @@ Compare two JSON objects and visualize their differences:
 Compare and polish JavaScript code side-by-side:
 - **Monaco DiffEditor** with real-time visual comparison
 - **Color-coded highlighting** for additions, deletions, and modifications
-- **Polish the revised code** while keeping the original intact
+- **Polish both codes** (Code A and Code B) simultaneously with per-panel fix summaries
 - **Toggle highlighting** on/off to focus on code or differences
-- **Download both files** (original and revised) with timestamps
+- **Download both files** (Code A and Code B) with timestamps
 - **Swap button** to reverse comparison direction
 
 ---
@@ -325,13 +325,13 @@ Click any node to see:
   - **Polish mode (JS)**: Polish the code
   - **Format mode (JSON)**: Format the JSON
   - **Compare mode (JSON)**: Compare the two JSON objects
-  - **Compare mode (JS)**: Polish the revised code
+  - **Compare mode (JS)**: Polish both codes
   - **Visualize mode (JS)**: Generate flow diagram
 
 ### 💾 Export
 - **Polish/Format mode**: Downloads both original and polished/formatted files with timestamps
-- **Compare mode**: Downloads both original and revised files with timestamps
-- Filenames: `original_YYYYMMDD_HHMMSS.js` and `polished_YYYYMMDD_HHMMSS.js` (or `formatted_YYYYMMDD_HHMMSS.json` for JSON)
+- **Compare mode**: Downloads both Code A and Code B files with timestamps
+- Filenames: `original_YYYYMMDD_HHMMSS.js` and `polished_YYYYMMDD_HHMMSS.js` (or `code_a_YYYYMMDD_HHMMSS.js` and `code_b_YYYYMMDD_HHMMSS.js` for Compare)
 
 ### 🔒 Privacy
 - Works offline after initial load
@@ -393,23 +393,24 @@ After building, the `dist/` folder contains static files that can be deployed to
 ### Develop Mode - Polish (JavaScript) / Format (JSON)
 1. Click **Develop** in the top-level toggle
 2. Select mode: **JavaScript** or **JSON** using the toggle
-3. Paste your code/JSON in the **Original Code** panel (left)
+3. Paste your code/JSON in the input panel (left)
 4. Click **Polish Code** (JavaScript) or **Format JSON** (JSON), or press `Ctrl+Enter`
-5. View formatted output in the **Polished Code** / **Formatted JSON** panel (right) with highlighted changes
+5. View formatted output in the output panel (right) with highlighted changes
 6. Click the fixes/warnings badge to see details
 7. Click **Copy** or **Download** to export the output
 
 ### Develop Mode - Compare (JavaScript)
 1. Select **JavaScript** mode and click **Compare**
-2. Enter original code on the left and revised code on the right
+2. Enter Code A on the left and Code B on the right
 3. See real-time visual diff highlighting
-4. Click **Polish Revised Code** to format only the right panel
-5. Toggle highlighting on/off as needed
-6. Click **Download** to save both files
+4. Click **Polish Codes** to format both panels simultaneously
+5. View per-panel fix summaries and change tracking
+6. Toggle highlighting on/off as needed
+7. Click **Download** to save both files
 
 ### Develop Mode - Compare (JSON)
 1. Select **JSON** mode and click **Compare**
-2. Enter original JSON on the left and modified JSON on the right
+2. Enter JSON on the left and modified JSON on the right
 3. Click **Compare JSON** to see the visual difference breakdown
 4. Use the swap button to reverse comparison direction
 

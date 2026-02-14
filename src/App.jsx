@@ -121,7 +121,7 @@ const SAMPLE_DIFF_RIGHT = `{
   ]
 }`;
 
-// Sample JavaScript code for Compare mode - Original version
+// Sample JavaScript code for Compare mode - Code A
 const SAMPLE_JS_DIFF_LEFT = `// Business Rule: Auto-assign incidents
 (function executeRule(current, previous) {
     var gr = new GlideRecord('incident');
@@ -167,7 +167,7 @@ const SAMPLE_VISUALIZE_CODE = `// Business Rule: Auto-assign high priority incid
     gs.info('Auto-assignment complete. Assigned: ' + count);
 })(current, previous);`;
 
-// Sample JavaScript code for Compare mode - Modified version
+// Sample JavaScript code for Compare mode - Code B
 const SAMPLE_JS_DIFF_RIGHT = `// Business Rule: Auto-assign high priority incidents
 // Added: Priority filter and error handling
 (function executeRule(current, previous) {
@@ -307,6 +307,15 @@ function App() {
   const [changedLines, setChangedLines] = useState([]);
   const [showFixesDropdown, setShowFixesDropdown] = useState(false);
   const fixesDropdownRef = useRef(null);
+
+  // Code A (left panel) polish results for Compare mode
+  const [fixesA, setFixesA] = useState([]);
+  const [warningsA, setWarningsA] = useState([]);
+  const [errorsA, setErrorsA] = useState([]);
+  const [metricsA, setMetricsA] = useState(null);
+  const [changedLinesA, setChangedLinesA] = useState([]);
+  const [showFixesDropdownA, setShowFixesDropdownA] = useState(false);
+  const fixesDropdownARef = useRef(null);
   const outputEditorRef = useRef(null);
   const monacoRef = useRef(null);
   const decorationsRef = useRef([]);
@@ -490,46 +499,73 @@ function App() {
     diffSyncingRef.current = false;
   }, []);
 
-  // Polish the right side code in diff mode
-  const handlePolishDiffRight = useCallback(async () => {
-    if (!diffRightJs.trim()) {
+  // Polish both Code A and Code B in Compare mode
+  const handlePolishDiffBoth = useCallback(async () => {
+    if (!diffLeftJs.trim() && !diffRightJs.trim()) {
       showToast('Please provide code to polish', 'error');
       return;
     }
 
-    const originalCode = diffRightJs;
     setIsProcessing(true);
     setStatus({ type: 'processing', message: 'Polishing...' });
 
     try {
-      const result = await polishCode(diffRightJs);
+      let totalFixes = 0;
+      let hasErrors = false;
 
-      if (result.success) {
-        setDiffEditorValues(undefined, result.output);
-        setFixes(result.fixes);
-        setWarnings(result.warnings || []);
-        setErrors(result.errors || []);
-        setMetrics(result.metrics);
-        
-        // Compute changed lines for the badge
-        const changes = computeLineDiff(originalCode, result.output);
-        setChangedLines(changes);
-        
-        setStatus({ type: 'ready', message: `Polished with ${result.fixes.length} fixes` });
-        
-        if (result.fixes.length > 0) {
-          showToast(`Code polished! ${result.fixes.length} fixes applied`, 'success');
+      // Polish Code A (left panel)
+      if (diffLeftJs.trim()) {
+        const originalA = diffLeftJs;
+        const resultA = await polishCode(diffLeftJs);
+        if (resultA.success) {
+          setDiffEditorValues(resultA.output, undefined);
+          setFixesA(resultA.fixes);
+          setWarningsA(resultA.warnings || []);
+          setErrorsA(resultA.errors || []);
+          setMetricsA(resultA.metrics);
+          setChangedLinesA(computeLineDiff(originalA, resultA.output));
+          totalFixes += resultA.fixes.length;
         } else {
-          showToast('Code formatted successfully!', 'success');
+          setFixesA(resultA.fixes || []);
+          setWarningsA(resultA.warnings || []);
+          setErrorsA(resultA.errors || []);
+          setChangedLinesA([]);
+          setMetricsA(null);
+          hasErrors = true;
         }
-      } else {
-        setFixes(result.fixes || []);
-        setWarnings(result.warnings || []);
-        setErrors(result.errors || []);
-        setChangedLines([]);
-        setMetrics(null);
+      }
+
+      // Polish Code B (right panel)
+      if (diffRightJs.trim()) {
+        const originalB = diffRightJs;
+        const resultB = await polishCode(diffRightJs);
+        if (resultB.success) {
+          setDiffEditorValues(undefined, resultB.output);
+          setFixes(resultB.fixes);
+          setWarnings(resultB.warnings || []);
+          setErrors(resultB.errors || []);
+          setMetrics(resultB.metrics);
+          setChangedLines(computeLineDiff(originalB, resultB.output));
+          totalFixes += resultB.fixes.length;
+        } else {
+          setFixes(resultB.fixes || []);
+          setWarnings(resultB.warnings || []);
+          setErrors(resultB.errors || []);
+          setChangedLines([]);
+          setMetrics(null);
+          hasErrors = true;
+        }
+      }
+
+      if (hasErrors) {
         setStatus({ type: 'error', message: 'Errors found' });
-        showToast(result.error, 'error');
+        showToast('Some code has errors', 'error');
+      } else if (totalFixes > 0) {
+        setStatus({ type: 'ready', message: `Polished with ${totalFixes} total fixes` });
+        showToast(`Both codes polished! ${totalFixes} fixes applied`, 'success');
+      } else {
+        setStatus({ type: 'ready', message: 'Both codes formatted' });
+        showToast('Both codes formatted successfully!', 'success');
       }
     } catch (error) {
       setStatus({ type: 'error', message: 'Failed to polish' });
@@ -537,7 +573,7 @@ function App() {
     } finally {
       setIsProcessing(false);
     }
-  }, [diffRightJs, setDiffEditorValues, showToast]);
+  }, [diffLeftJs, diffRightJs, setDiffEditorValues, showToast]);
 
   // Load sample JS diff code
   const handleLoadJsDiffSample = useCallback(() => {
@@ -553,16 +589,31 @@ function App() {
     setErrors([]);
     setMetrics(null);
     setChangedLines([]);
+    setFixesA([]);
+    setWarningsA([]);
+    setErrorsA([]);
+    setMetricsA(null);
+    setChangedLinesA([]);
     setStatus({ type: 'ready', message: 'Ready' });
   }, [setDiffEditorValues]);
 
-  // Swap left and right JS
+  // Swap Code A and Code B (including polish results)
   const handleSwapJs = useCallback(() => {
     const left = diffLeftJs;
     const right = diffRightJs;
     setDiffEditorValues(right, left);
+
+    // Swap polish results between panels
+    const tmpFixes = fixesA; const tmpWarnings = warningsA; const tmpErrors = errorsA;
+    const tmpMetrics = metricsA; const tmpChanged = changedLinesA;
+    setFixesA(fixes); setWarningsA(warnings); setErrorsA(errors);
+    setMetricsA(metrics); setChangedLinesA(changedLines);
+    setFixes(tmpFixes); setWarnings(tmpWarnings); setErrors(tmpErrors);
+    setMetrics(tmpMetrics); setChangedLines(tmpChanged);
+
     showToast('Code swapped', 'success');
-  }, [diffLeftJs, diffRightJs, setDiffEditorValues, showToast]);
+  }, [diffLeftJs, diffRightJs, fixes, warnings, errors, metrics, changedLines,
+      fixesA, warningsA, errorsA, metricsA, changedLinesA, setDiffEditorValues, showToast]);
 
   // Custom node types for React Flow
   const nodeTypes = useMemo(() => ({
@@ -777,19 +828,22 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visualizeViewMode]);
 
-  // Copy revised JS code to clipboard
+  // Copy both codes to clipboard
   const handleCopyJsDiff = useCallback(async () => {
-    if (!diffRightJs.trim()) {
-      showToast('No revised code to copy', 'error');
+    if (!diffLeftJs.trim() && !diffRightJs.trim()) {
+      showToast('No code to copy', 'error');
       return;
     }
     try {
-      await navigator.clipboard.writeText(diffRightJs);
-      showToast('Revised code copied to clipboard!', 'success');
+      const parts = [];
+      if (diffLeftJs.trim()) parts.push(`// === Code A ===\n${diffLeftJs}`);
+      if (diffRightJs.trim()) parts.push(`// === Code B ===\n${diffRightJs}`);
+      await navigator.clipboard.writeText(parts.join('\n\n'));
+      showToast('Code copied to clipboard!', 'success');
     } catch (err) {
       showToast('Failed to copy', 'error');
     }
-  }, [diffRightJs, showToast]);
+  }, [diffLeftJs, diffRightJs, showToast]);
 
   // Download both JS diff files
   const handleDownloadJsDiff = useCallback(() => {
@@ -822,14 +876,14 @@ function App() {
     let filesDownloaded = 0;
     
     if (diffLeftJs.trim()) {
-      downloadFile(diffLeftJs, `original_${timestamp}.js`);
+      downloadFile(diffLeftJs, `code_a_${timestamp}.js`);
       filesDownloaded++;
     }
     
     if (diffRightJs.trim()) {
       // Small delay to avoid browser blocking multiple downloads
       setTimeout(() => {
-        downloadFile(diffRightJs, `revised_${timestamp}.js`);
+        downloadFile(diffRightJs, `code_b_${timestamp}.js`);
       }, 100);
       filesDownloaded++;
     }
@@ -1137,13 +1191,13 @@ function App() {
     if (mode === 'json' && jsonSubMode === 'diff') {
       primaryActionRef.current = handleCompareJson;
     } else if (mode === 'javascript' && jsSubMode === 'diff') {
-      primaryActionRef.current = handlePolishDiffRight;
+      primaryActionRef.current = handlePolishDiffBoth;
     } else if (mode === 'javascript' && jsSubMode === 'visualize') {
       primaryActionRef.current = handleGenerateFlow;
     } else {
       primaryActionRef.current = handlePolish;
     }
-  }, [handlePolish, handleCompareJson, handlePolishDiffRight, handleGenerateFlow, mode, jsonSubMode, jsSubMode]);
+  }, [handlePolish, handleCompareJson, handlePolishDiffBoth, handleGenerateFlow, mode, jsonSubMode, jsSubMode]);
 
   // Keyboard shortcut handler
   useEffect(() => {
@@ -1154,7 +1208,7 @@ function App() {
         if (mode === 'json' && jsonSubMode === 'diff') {
           handleCompareJson();
         } else if (mode === 'javascript' && jsSubMode === 'diff') {
-          handlePolishDiffRight();
+          handlePolishDiffBoth();
         } else if (mode === 'javascript' && jsSubMode === 'visualize') {
           handleGenerateFlow();
         } else {
@@ -1169,13 +1223,16 @@ function App() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handlePolish, handleCompareJson, handlePolishDiffRight, handleGenerateFlow, mode, jsonSubMode, jsSubMode]);
+  }, [handlePolish, handleCompareJson, handlePolishDiffBoth, handleGenerateFlow, mode, jsonSubMode, jsSubMode]);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (fixesDropdownRef.current && !fixesDropdownRef.current.contains(e.target)) {
         setShowFixesDropdown(false);
+      }
+      if (fixesDropdownARef.current && !fixesDropdownARef.current.contains(e.target)) {
+        setShowFixesDropdownA(false);
       }
       if (settingsDropdownRef.current && !settingsDropdownRef.current.contains(e.target)) {
         setShowSettings(false);
@@ -1188,11 +1245,11 @@ function App() {
       }
     };
 
-    if (showFixesDropdown || showSettings || showVisualizeSettings || showModeInfo) {
+    if (showFixesDropdown || showFixesDropdownA || showSettings || showVisualizeSettings || showModeInfo) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showFixesDropdown, showSettings, showVisualizeSettings, showModeInfo]);
+  }, [showFixesDropdown, showFixesDropdownA, showSettings, showVisualizeSettings, showModeInfo]);
 
   // Update status message based on current app mode and sub-modes
   useEffect(() => {
@@ -1476,8 +1533,8 @@ function App() {
           ) : mode === 'javascript' && jsSubMode === 'diff' ? (
             <button 
               className="polish-btn" 
-              onClick={handlePolishDiffRight}
-              disabled={isProcessing || !diffRightJs.trim()}
+              onClick={handlePolishDiffBoth}
+              disabled={isProcessing || (!diffLeftJs.trim() && !diffRightJs.trim())}
             >
               {isProcessing ? (
                 <>
@@ -1487,7 +1544,7 @@ function App() {
               ) : (
                 <>
                   <span className="icon"><Icon name="sparkles" size={16} /></span>
-                  Polish Revised Code
+                  Polish Codes
                 </>
               )}
             </button>
@@ -1813,20 +1870,94 @@ function App() {
           <div className="js-diff-layout">
             {/* Panel Headers Row */}
             <div className="js-diff-headers">
-              {/* Left Panel Header */}
+              {/* Code A Panel Header */}
               <div className="js-diff-panel-header">
                 <div className="panel-title">
                   <span className="dot input" />
-                  Original Code
+                  Code A
+                  {/* Code A Fixes/Warnings/Errors Dropdown */}
+                  {(fixesA.length > 0 || warningsA.length > 0 || errorsA.length > 0) && (
+                    <div className="fixes-dropdown-container" ref={fixesDropdownARef}>
+                      <button 
+                        className={`fixes-badge clickable ${showFixesDropdownA ? 'active' : ''}`}
+                        onClick={() => setShowFixesDropdownA(!showFixesDropdownA)}
+                      >
+                        <span className="fixes-badge-icon"><Icon name="check" size={12} /></span>
+                        <span>{fixesA.length} fixes</span>
+                        {errorsA.length > 0 && (
+                          <span className="error-count"><Icon name="x" size={10} /> {errorsA.length}</span>
+                        )}
+                        {warningsA.length > 0 && (
+                          <span className="warning-count"><Icon name="warning" size={10} /> {warningsA.length}</span>
+                        )}
+                        <span className={`fixes-badge-arrow ${showFixesDropdownA ? 'open' : ''}`}>▾</span>
+                      </button>
+                      
+                      {showFixesDropdownA && (
+                        <div className="fixes-dropdown">
+                          {fixesA.length > 0 && (
+                            <>
+                              <div className="fixes-dropdown-header">
+                                <span className="fixes-dropdown-title"><Icon name="wrench" size={14} /> Fixes Applied</span>
+                              </div>
+                              <ul className="fixes-list">
+                                {fixesA.map((fix, index) => (
+                                  <li key={index} className="fix-item">
+                                    <span className="fix-icon"><Icon name="check" size={12} /></span>
+                                    <span className="fix-text">{fix}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </>
+                          )}
+                          {errorsA.length > 0 && (
+                            <>
+                              <div className="fixes-dropdown-header errors-header">
+                                <span className="fixes-dropdown-title"><Icon name="x" size={14} /> Errors</span>
+                              </div>
+                              <ul className="fixes-list errors-list">
+                                {errorsA.map((error, index) => (
+                                  <li key={index} className="fix-item error-item">
+                                    <span className="fix-icon error-icon"><Icon name="x" size={12} /></span>
+                                    <span className="fix-text">{error}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </>
+                          )}
+                          {warningsA.length > 0 && (
+                            <>
+                              <div className="fixes-dropdown-header warnings-header">
+                                <span className="fixes-dropdown-title"><Icon name="warning" size={14} /> Warnings</span>
+                              </div>
+                              <ul className="fixes-list warnings-list">
+                                {warningsA.map((warning, index) => (
+                                  <li key={index} className="fix-item warning-item">
+                                    <span className="fix-icon warning-icon"><Icon name="warning" size={12} /></span>
+                                    <span className="fix-text">{warning}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {changedLinesA.length > 0 && (
+                    <span className="changes-badge">
+                      {changedLinesA.length} lines changed
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Right Panel Header */}
+              {/* Code B Panel Header */}
               <div className="js-diff-panel-header">
                 <div className="panel-title">
                   <span className="dot output" />
-                  Revised Code
-                  {/* Fixes/Warnings/Errors Dropdown */}
+                  Code B
+                  {/* Code B Fixes/Warnings/Errors Dropdown */}
                   {(fixes.length > 0 || warnings.length > 0 || errors.length > 0) && (
                     <div className="fixes-dropdown-container" ref={fixesDropdownRef}>
                       <button 
@@ -1908,7 +2039,7 @@ function App() {
                   <button 
                     className="panel-btn" 
                     onClick={handleCopyJsDiff}
-                    disabled={!diffRightJs.trim()}
+                    disabled={!diffLeftJs.trim() && !diffRightJs.trim()}
                   >
                     <Icon name="copy" size={14} /> Copy
                   </button>
@@ -2525,7 +2656,8 @@ function App() {
                       <ul>
                         <li>Monaco DiffEditor with real-time comparison</li>
                         <li>Color-coded additions, deletions, changes</li>
-                        <li>Polish the revised code while keeping original</li>
+                        <li>Polish both Code A and Code B simultaneously</li>
+                        <li>Per-panel fix summaries and change tracking</li>
                         <li>Toggle diff highlighting on/off</li>
                         <li>Download both files with timestamps</li>
                         <li>Swap panels to reverse comparison</li>
